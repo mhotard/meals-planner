@@ -1,26 +1,115 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #faf8f4;
+  --surface: #ffffff;
+  --surface-sunk: #f4f0e9;
+  --foreground: #1c1917;
+  --muted: #7d7268;
+  --line: #ebe4d9;
+  --line-strong: #ddd3c4;
+  --accent: #2d6a4f;
+  --accent-hover: #245741;
+  --accent-soft: #e9f1ec;
+  --warn: #b0501e;
+  --warn-soft: #fbeee6;
+
+  --shadow-sm: 0 1px 2px rgba(28, 25, 23, 0.04), 0 1px 3px rgba(28, 25, 23, 0.05);
+  --shadow-md: 0 2px 4px rgba(28, 25, 23, 0.04), 0 6px 16px -6px rgba(28, 25, 23, 0.12);
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-sunk: var(--surface-sunk);
   --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-soft: var(--accent-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
   --font-sans: var(--font-geist-sans);
+  --font-display: var(--font-display);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Headings carry the "cookbook" character; body stays plain and legible. */
+@utility display {
+  font-family: var(--font-display), Georgia, serif;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+}
+
+@utility card {
+  @apply rounded-2xl border border-line bg-surface;
+  box-shadow: var(--shadow-sm);
+}
+
+@utility card-flat {
+  @apply rounded-2xl border border-line bg-surface;
+}
+
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-medium
+    transition-all duration-150 active:translate-y-px
+    disabled:cursor-not-allowed disabled:opacity-50 disabled:active:translate-y-0;
+}
+
+@utility btn-primary {
+  @apply btn bg-accent text-white hover:bg-accent-hover;
+  box-shadow: var(--shadow-sm);
+}
+
+@utility btn-secondary {
+  @apply btn border border-line-strong bg-surface text-foreground hover:border-accent/40 hover:bg-accent-soft;
+}
+
+@utility btn-ghost {
+  @apply btn text-muted hover:bg-accent-soft hover:text-foreground;
+}
+
+@utility input {
+  @apply w-full rounded-xl border border-line-strong bg-surface px-3 py-2 text-sm text-foreground
+    outline-none transition-colors placeholder:text-muted/60
+    focus:border-accent focus:ring-4 focus:ring-accent/10;
+}
+
+@utility label {
+  @apply mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted;
+}
+
+@utility chip {
+  @apply inline-flex items-center gap-1 rounded-full border border-line px-2.5 py-0.5
+    text-xs font-medium text-muted;
+}
+
+@utility chip-accent {
+  @apply chip border-accent/25 bg-accent-soft text-accent;
+}
+
+/* Section label above a group of rows (aisles, day names). */
+@utility eyebrow {
+  @apply text-[11px] font-semibold uppercase tracking-[0.08em] text-muted;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+  }
+  .card {
+    border: none;
+    box-shadow: none;
+  }
 }
