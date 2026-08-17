@@ -14,13 +14,14 @@ import {
   weekStartOf,
 } from "@/lib/dates";
 import {
-  addPlanEntry,
+  addCustomToDay,
+  addRecipeToDay,
   createPlan,
   logWeekAsCooked,
   removePlanEntry,
   updatePlanNotes,
 } from "../actions";
-import DayPlanner from "./day-planner";
+import RecipePicker from "./recipe-picker";
 import ShareLink from "./share-link";
 import PlanNotes from "./plan-notes";
 
@@ -55,6 +56,18 @@ export default async function PlanPage({ params }: PageProps<"/plans/[week]">) {
   const days = groupByDay(entries);
   const isCurrentWeek = week === weekStartOf();
   const todayISO = toISODate(new Date());
+
+  const pickerRecipes = recipes.map((r) => ({
+    id: r.id,
+    name: r.name,
+    description: r.description,
+    prepMinutes: r.prepMinutes,
+    timesCooked: r.timesCooked,
+    lastCookedOn: r.lastCookedOn,
+  }));
+  const plannedRecipeIds = entries
+    .map((e) => e.recipeId)
+    .filter((id): id is number => id != null);
 
   return (
     <div className="space-y-6">
@@ -161,11 +174,22 @@ export default async function PlanPage({ params }: PageProps<"/plans/[week]">) {
                 ))}
 
                 <div className="no-print">
-                  <DayPlanner
-                    dayOfWeek={dayIndex}
+                  <RecipePicker
                     dayLabel={dayName}
-                    recipes={recipes.map((r) => ({ id: r.id, name: r.name }))}
-                    action={addPlanEntry.bind(null, week)}
+                    dayDate={new Intl.DateTimeFormat("en-US", {
+                      month: "short",
+                      day: "numeric",
+                    }).format(date)}
+                    recipes={pickerRecipes}
+                    plannedRecipeIds={plannedRecipeIds}
+                    onPickRecipe={async (recipeId: number) => {
+                      "use server";
+                      await addRecipeToDay(week, dayIndex, recipeId);
+                    }}
+                    onPickCustom={async (label: string) => {
+                      "use server";
+                      await addCustomToDay(week, dayIndex, label);
+                    }}
                   />
                 </div>
               </div>

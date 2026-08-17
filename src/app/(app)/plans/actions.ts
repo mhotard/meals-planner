@@ -45,18 +45,16 @@ export async function createPlanForDate(formData: FormData) {
   await createPlan(weekStartOf(parseISODate(date)));
 }
 
-export async function addPlanEntry(weekStart: string, formData: FormData) {
+async function addEntry(
+  weekStart: string,
+  dayOfWeek: number,
+  entry: { recipeId?: number; customLabel?: string },
+) {
   await requireUser();
   const planId = await planIdForWeek(weekStart);
   if (!planId) return;
-
-  const dayOfWeek = Number(formData.get("dayOfWeek"));
   if (!Number.isInteger(dayOfWeek) || dayOfWeek < 0 || dayOfWeek > 6) return;
-
-  const custom = String(formData.get("customLabel") ?? "").trim();
-  const recipeIdRaw = String(formData.get("recipeId") ?? "");
-  const recipeId = recipeIdRaw ? Number(recipeIdRaw) : null;
-  if (!custom && !recipeId) return;
+  if (!entry.recipeId && !entry.customLabel) return;
 
   const db = await getDb();
   const [{ next }] = await db
@@ -72,12 +70,31 @@ export async function addPlanEntry(weekStart: string, formData: FormData) {
   await db.insert(schema.mealPlanEntries).values({
     planId,
     dayOfWeek,
-    recipeId: custom ? null : recipeId,
-    customLabel: custom || null,
+    recipeId: entry.recipeId ?? null,
+    customLabel: entry.customLabel ?? null,
     sortOrder: next,
   });
 
   revalidatePath(`/plans/${weekStart}`);
+  revalidatePath(`/plans/${weekStart}/shopping`);
+}
+
+export async function addRecipeToDay(
+  weekStart: string,
+  dayOfWeek: number,
+  recipeId: number,
+) {
+  await addEntry(weekStart, dayOfWeek, { recipeId });
+}
+
+export async function addCustomToDay(
+  weekStart: string,
+  dayOfWeek: number,
+  label: string,
+) {
+  const customLabel = label.trim();
+  if (!customLabel) return;
+  await addEntry(weekStart, dayOfWeek, { customLabel });
 }
 
 export async function removePlanEntry(weekStart: string, entryId: number) {
