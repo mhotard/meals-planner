@@ -3,26 +3,28 @@ import "server-only";
 import { eq, inArray } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { categoryRank } from "./categories";
+import { toSupply, type Supply } from "./supply";
 import { formatAmount, formatQuantity, fromBase, toBase, unitGroupKey } from "./units";
 
 export type ShoppingItem = {
-  /** Stable across rebuilds so check/exclude state sticks to the right line. */
+  /** Stable across rebuilds so check/skip state sticks to the right line. */
   key: string;
   name: string;
   category: string;
   amount: string;
   /** Which recipes drove this line, for the "why is this here?" hint. */
   fromRecipes: string[];
-  isStaple: boolean;
+  supply: Supply;
   isExtra: boolean;
   checked: boolean;
+  /** Not being bought this week: skipped, or a pantry item we already have. */
   excluded: boolean;
 };
 
 type Accumulator = {
   name: string;
   category: string;
-  isStaple: boolean;
+  supply: Supply;
   base: number | null;
   unitsSeen: string[];
   fromRecipes: Set<string>;
@@ -30,8 +32,11 @@ type Accumulator = {
 
 /**
  * Builds the week's list: every ingredient from the planned recipes, combined
- * across recipes where the units allow it, plus the weekly staples, plus any
+ * across recipes where the units allow it, plus the every-week items, plus any
  * ad-hoc items typed in for this week.
+ *
+ * Pantry ingredients are included but start out excluded — the shopping page
+ * shows them as a "do you have enough?" prompt instead of something to buy.
  */
 export async function buildShoppingList(planId: number): Promise<ShoppingItem[]> {
   const db = await getDb();
@@ -41,7 +46,9 @@ export async function buildShoppingList(planId: number): Promise<ShoppingItem[]>
     .from(schema.mealPlanEntries)
     .where(eq(schema.mealPlanEntries.planId, planId));
 
-  const recipeIds = [...new Set(entries.map((e) => e.recipeId).filter((id): id is number => id != null))];
+  const recipeIds = [
+    ...new Set(entries.map((e) => e.recipeId).filter((id): id is number => id != null)),
+  ];
 
   const lines = recipeIds.length
     ? await db
@@ -50,7 +57,7 @@ export async function buildShoppingList(planId: number): Promise<ShoppingItem[]>
           ingredientId: schema.ingredients.id,
           name: schema.ingredients.name,
           category: schema.ingredients.category,
-          isStaple: schema.ingredients.isStaple,
+          supply: schema.ingredients.supply,
           quantity: schema.recipeIngredients.quantity,
           unit: schema.recipeIngredients.unit,
         })
@@ -92,42 +99,42 @@ export async function buildShoppingList(planId: number): Promise<ShoppingItem[]>
     const key = `ing:${line.ingredientId}:${unitGroupKey(line.unit)}`;
     accumulate(
       key,
-      { name: line.name, category: line.category, isStaple: line.isStaple },
+      { name: line.name, category: line.category, supply: toSupply(line.supply) },
       quantity,
       line.unit,
       line.recipeName,
     );
   }
 
-  // Weekly staples are on the list whether or not a recipe called for them.
-  const staples = await db
+  // Every-week items are on the list whether or not a recipe called for them.
+  const weekly = await db
     .select()
     .from(schema.ingredients)
-    .where(eq(schema.ingredients.isStaple, true));
+    .where(eq(schema.ingredients.supply, "weekly"));
 
-  for (const staple of staples) {
-    const quantity = staple.stapleQuantity == null ? null : Number(staple.stapleQuantity);
-    const key = `ing:${staple.id}:${unitGroupKey(staple.stapleUnit)}`;
+  for (const item of weekly) {
+    const quantity = item.weeklyQuantity == null ? null : Number(item.weeklyQuantity);
+    const key = `ing:${item.id}:${unitGroupKey(item.weeklyUnit)}`;
     const existing = groups.get(key);
 
     if (!existing) {
       accumulate(
         key,
-        { name: staple.name, category: staple.category, isStaple: true },
+        { name: item.name, category: item.category, supply: "weekly" },
         quantity,
-        staple.stapleUnit,
+        item.weeklyUnit,
       );
       continue;
     }
 
     // The recipes already need some of this. Buy the usual weekly amount, or
     // the recipes' total if that's more — never less than either.
-    existing.isStaple = true;
+    existing.supply = "weekly";
     if (quantity != null) {
-      const stapleBase = toBase(quantity, staple.stapleUnit);
-      if (existing.base == null || stapleBase > existing.base) {
-        existing.base = stapleBase;
-        existing.unitsSeen.push(staple.stapleUnit ?? "");
+      const weeklyBase = toBase(quantity, item.weeklyUnit);
+      if (existing.base == null || weeklyBase > existing.base) {
+        existing.base = weeklyBase;
+        existing.unitsSeen.push(item.weeklyUnit ?? "");
       }
     }
   }
@@ -161,10 +168,12 @@ export async function buildShoppingList(planId: number): Promise<ShoppingItem[]>
       category: acc.category,
       amount,
       fromRecipes: [...acc.fromRecipes],
-      isStaple: acc.isStaple,
+      supply: acc.supply,
       isExtra: false,
       checked: state?.checked ?? false,
-      excluded: state?.excluded ?? false,
+      // Pantry items sit out by default; moving one onto the list writes an
+      // explicit row with excluded = false.
+      excluded: state?.excluded ?? acc.supply === "pantry",
     });
   }
 
@@ -180,7 +189,7 @@ export async function buildShoppingList(planId: number): Promise<ShoppingItem[]>
         extra.unit,
       ),
       fromRecipes: [],
-      isStaple: false,
+      supply: "per_recipe",
       isExtra: true,
       checked: state?.checked ?? false,
       excluded: state?.excluded ?? false,
@@ -194,6 +203,22 @@ export async function buildShoppingList(planId: number): Promise<ShoppingItem[]>
   );
 }
 
+/**
+ * Splits the list into what we're buying and the pantry items this week's
+ * recipes touch, which are only worth a glance.
+ */
+export function partitionList(items: ShoppingItem[]) {
+  const toBuy: ShoppingItem[] = [];
+  const pantryCheck: ShoppingItem[] = [];
+
+  for (const item of items) {
+    if (item.supply === "pantry" && item.excluded) pantryCheck.push(item);
+    else toBuy.push(item);
+  }
+
+  return { toBuy, pantryCheck };
+}
+
 export function groupByCategory(items: ShoppingItem[]) {
   const map = new Map<string, ShoppingItem[]>();
   for (const item of items) {
@@ -202,24 +227,6 @@ export function groupByCategory(items: ShoppingItem[]) {
     map.set(item.category, list);
   }
   return [...map.entries()].sort(([a], [b]) => categoryRank(a) - categoryRank(b));
-}
-
-/** One item per line — what Trello turns into one card per line on paste. */
-export function toPlainList(items: ShoppingItem[]): string {
-  return items
-    .filter((i) => !i.excluded)
-    .map((i) => (i.amount ? `${i.name} — ${i.amount}` : i.name))
-    .join("\n");
-}
-
-export function toGroupedText(items: ShoppingItem[]): string {
-  return groupByCategory(items.filter((i) => !i.excluded))
-    .map(
-      ([category, list]) =>
-        `${category.toUpperCase()}\n` +
-        list.map((i) => (i.amount ? `- ${i.name} (${i.amount})` : `- ${i.name}`)).join("\n"),
-    )
-    .join("\n\n");
 }
 
 export { formatQuantity };

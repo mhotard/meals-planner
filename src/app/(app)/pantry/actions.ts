@@ -5,37 +5,24 @@ import { eq, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { requireUser } from "@/lib/auth";
 import { isCategory } from "@/lib/categories";
+import { toSupply, type Supply } from "@/lib/supply";
 import { normalizeUnit } from "@/lib/units";
 
+/** Edit an ingredient's aisle and how often it gets bought. */
 export async function updateIngredient(ingredientId: number, formData: FormData) {
   await requireUser();
   const db = await getDb();
 
   const category = String(formData.get("category") ?? "other");
-  const quantityRaw = String(formData.get("stapleQuantity") ?? "").trim();
-  const quantity = Number(quantityRaw);
 
   await db
     .update(schema.ingredients)
     .set({
-      isStaple: formData.get("isStaple") === "on",
+      supply: toSupply(formData.get("supply")),
       category: isCategory(category) ? category : "other",
-      stapleQuantity:
-        quantityRaw && Number.isFinite(quantity) ? String(quantity) : null,
-      stapleUnit: normalizeUnit(String(formData.get("stapleUnit") ?? "")) || null,
     })
     .where(eq(schema.ingredients.id, ingredientId));
 
-  revalidatePath("/pantry");
-}
-
-export async function toggleStaple(ingredientId: number, next: boolean) {
-  await requireUser();
-  const db = await getDb();
-  await db
-    .update(schema.ingredients)
-    .set({ isStaple: next })
-    .where(eq(schema.ingredients.id, ingredientId));
   revalidatePath("/pantry");
 }
 
@@ -57,17 +44,17 @@ export async function createIngredient(formData: FormData) {
   await db.insert(schema.ingredients).values({
     name,
     category: isCategory(category) ? category : "other",
-    isStaple: formData.get("isStaple") === "on",
+    supply: toSupply(formData.get("supply")),
   });
 
   revalidatePath("/pantry");
 }
 
 /**
- * Add an item to the "every week" list. Reuses the ingredient if a recipe
- * already mentions it, so staples and recipe lines stay the same thing.
+ * Add an item to one of the two managed lists. Reuses the ingredient if a
+ * recipe already mentions it, so lists and recipe lines stay the same thing.
  */
-export async function addStaple(formData: FormData) {
+async function addToList(formData: FormData, supply: Supply) {
   await requireUser();
   const name = String(formData.get("name") ?? "").trim();
   if (!name) return;
@@ -84,9 +71,15 @@ export async function addStaple(formData: FormData) {
     .limit(1);
 
   const values = {
-    isStaple: true,
-    stapleQuantity: quantityRaw && Number.isFinite(quantity) ? String(quantity) : null,
-    stapleUnit: normalizeUnit(String(formData.get("unit") ?? "")) || null,
+    supply,
+    weeklyQuantity:
+      supply === "weekly" && quantityRaw && Number.isFinite(quantity)
+        ? String(quantity)
+        : null,
+    weeklyUnit:
+      supply === "weekly"
+        ? normalizeUnit(String(formData.get("unit") ?? "")) || null
+        : null,
   };
 
   if (existing) {
@@ -95,9 +88,7 @@ export async function addStaple(formData: FormData) {
     await db
       .update(schema.ingredients)
       .set(
-        isCategory(category) && category !== "other"
-          ? { ...values, category }
-          : values,
+        isCategory(category) && category !== "other" ? { ...values, category } : values,
       )
       .where(eq(schema.ingredients.id, existing.id));
   } else {
@@ -111,18 +102,30 @@ export async function addStaple(formData: FormData) {
   revalidatePath("/pantry");
 }
 
-/** Keeps the ingredient (recipes may use it) but drops it off every week. */
-export async function removeStaple(ingredientId: number) {
+export async function addWeeklyItem(formData: FormData) {
+  await addToList(formData, "weekly");
+}
+
+export async function addPantryItem(formData: FormData) {
+  await addToList(formData, "pantry");
+}
+
+/** Keeps the ingredient (recipes may use it) but takes it off the list. */
+export async function setSupply(ingredientId: number, supply: Supply) {
   await requireUser();
   const db = await getDb();
   await db
     .update(schema.ingredients)
-    .set({ isStaple: false, stapleQuantity: null, stapleUnit: null })
+    .set(
+      supply === "weekly"
+        ? { supply }
+        : { supply, weeklyQuantity: null, weeklyUnit: null },
+    )
     .where(eq(schema.ingredients.id, ingredientId));
   revalidatePath("/pantry");
 }
 
-export async function updateStapleAmount(ingredientId: number, formData: FormData) {
+export async function updateWeeklyAmount(ingredientId: number, formData: FormData) {
   await requireUser();
   const db = await getDb();
 
@@ -132,9 +135,9 @@ export async function updateStapleAmount(ingredientId: number, formData: FormDat
   await db
     .update(schema.ingredients)
     .set({
-      stapleQuantity:
+      weeklyQuantity:
         quantityRaw && Number.isFinite(quantity) ? String(quantity) : null,
-      stapleUnit: normalizeUnit(String(formData.get("unit") ?? "")) || null,
+      weeklyUnit: normalizeUnit(String(formData.get("unit") ?? "")) || null,
     })
     .where(eq(schema.ingredients.id, ingredientId));
 

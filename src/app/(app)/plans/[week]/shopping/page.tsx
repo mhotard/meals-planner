@@ -2,12 +2,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { getPlanByWeek, getPlanEntries, groupByDay } from "@/lib/plans";
-import { buildShoppingList, groupByCategory } from "@/lib/shopping";
+import { buildShoppingList, groupByCategory, partitionList } from "@/lib/shopping";
 import { formatWeekRange, isValidWeekStart } from "@/lib/dates";
 import { planForTrello, shoppingAsText, shoppingForTrello } from "@/lib/export";
 import { CATEGORIES } from "@/lib/categories";
 import { UNIT_OPTIONS } from "@/lib/units";
 import ShoppingList from "@/components/shopping-list";
+import PantryCheck from "@/components/pantry-check";
 import CopyButtons from "@/components/copy-buttons";
 import {
   addExtraItem,
@@ -28,10 +29,11 @@ export default async function ShoppingPage({
   if (!plan) notFound();
 
   const items = await buildShoppingList(plan.id);
-  const groups = groupByCategory(items);
+  const { toBuy, pantryCheck } = partitionList(items);
+  const groups = groupByCategory(toBuy);
   const days = groupByDay(await getPlanEntries(plan.id));
 
-  const active = items.filter((i) => !i.excluded);
+  const active = toBuy.filter((i) => !i.excluded);
   const got = active.filter((i) => i.checked).length;
   const remaining = active.length - got;
   const percent = active.length === 0 ? 0 : Math.round((got / active.length) * 100);
@@ -104,9 +106,9 @@ export default async function ShoppingPage({
       />
 
       <p className="no-print text-xs text-muted">
-        Items tagged <span className="chip-accent">staple</span> are on every list.{" "}
+        Items tagged <span className="chip-accent">every week</span> are on every list.{" "}
         <Link href="/pantry" className="text-accent underline underline-offset-2">
-          Edit your every-week items
+          Edit what you buy weekly
         </Link>
       </p>
 
@@ -125,6 +127,14 @@ export default async function ShoppingPage({
           }}
         />
       </div>
+
+      <PantryCheck
+        items={pantryCheck}
+        onAdd={async (itemKey: string) => {
+          "use server";
+          await toggleItemExcluded(week, itemKey, false);
+        }}
+      />
 
       <section className="no-print card p-6">
         <h2 className="mb-4 display text-lg">Add something else</h2>

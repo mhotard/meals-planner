@@ -57,7 +57,7 @@ export async function getRecipe(id: number) {
       ingredientId: schema.ingredients.id,
       name: schema.ingredients.name,
       category: schema.ingredients.category,
-      isStaple: schema.ingredients.isStaple,
+      supply: schema.ingredients.supply,
       quantity: schema.recipeIngredients.quantity,
       unit: schema.recipeIngredients.unit,
       note: schema.recipeIngredients.note,
@@ -96,9 +96,9 @@ export async function listIngredients() {
       id: schema.ingredients.id,
       name: schema.ingredients.name,
       category: schema.ingredients.category,
-      isStaple: schema.ingredients.isStaple,
-      stapleQuantity: schema.ingredients.stapleQuantity,
-      stapleUnit: schema.ingredients.stapleUnit,
+      supply: schema.ingredients.supply,
+      weeklyQuantity: schema.ingredients.weeklyQuantity,
+      weeklyUnit: schema.ingredients.weeklyUnit,
       usedIn: sql<number>`(
         select count(*)::int from recipe_ingredients ri where ri.ingredient_id = ingredients.id
       )`,

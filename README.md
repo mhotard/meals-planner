@@ -10,14 +10,18 @@ week into a shopping list you can share or paste into Trello.
 - **Cook log** — record the nights you actually made something, with an optional
   rating and note. The home page surfaces what's in rotation and what you
   haven't made in a while.
-- **Pantry** — the shared list of every ingredient. Flag the ones you restock
-  every week as **staples**; they land on every shopping list automatically.
+- **Shopping** — every ingredient, sorted into how you actually buy it:
+  **every week** (milk, bread, eggs) lands on every list automatically;
+  **pantry** (olive oil, rice, spices) stays off the list and appears as a
+  "check you have enough" prompt when a recipe needs it; everything else is
+  bought only when a recipe calls for it.
 - **Weekly plans** — assign recipes to days, or type free-form entries like
   "leftovers" or "pizza out".
 - **Shopping list** — combines the week's ingredients (adding up compatible
-  units, so 2 lb + 8 oz becomes 2.5 lb), adds the staples, and groups
+  units, so 2 lb + 8 oz becomes 2.5 lb), adds the every-week items, and groups
   everything by grocery aisle. Check items off, skip what you already have, add
-  one-off items.
+  one-off items. Pantry items the week's recipes use sit in a separate "check
+  the pantry" strip — one tap moves any you're low on onto the list.
 - **Sharing** — every week gets a secret read-only link that needs no login,
   plus copy-as-text and Trello-shaped exports, plus a print view.
 - **Logins** — email + password, two or more accounts, all sharing one

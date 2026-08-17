@@ -1,5 +1,5 @@
 {
-  "id": "227e089a-6f36-4b35-a5de-29f9bc3902f4",
+  "id": "1772d788-4d7b-4659-902e-426ab49fb234",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -110,21 +110,21 @@
           "notNull": true,
           "default": "'other'"
         },
-        "is_staple": {
-          "name": "is_staple",
-          "type": "boolean",
+        "supply": {
+          "name": "supply",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": false
+          "default": "'per_recipe'"
         },
-        "staple_quantity": {
-          "name": "staple_quantity",
+        "weekly_quantity": {
+          "name": "weekly_quantity",
           "type": "numeric(10, 2)",
           "primaryKey": false,
           "notNull": false
         },
-        "staple_unit": {
-          "name": "staple_unit",
+        "weekly_unit": {
+          "name": "weekly_unit",
           "type": "text",
           "primaryKey": false,
           "notNull": false

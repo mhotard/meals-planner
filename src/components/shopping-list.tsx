@@ -51,9 +51,9 @@ function Row({ item, actions }: { item: ShoppingItem; actions?: Actions }) {
               {item.amount}
             </span>
           )}
-          {item.isStaple && (
-            <span className="ml-2 align-middle chip-accent" title="Weekly staple">
-              staple
+          {item.supply === "weekly" && (
+            <span className="ml-2 align-middle chip-accent" title="Bought every week">
+              every week
             </span>
           )}
           {item.fromRecipes.length > 0 && (
@@ -74,7 +74,11 @@ function Row({ item, actions }: { item: ShoppingItem; actions?: Actions }) {
           }
           className="no-print shrink-0 rounded-lg px-2 py-1 text-xs text-muted opacity-0 transition-opacity hover:bg-warn-soft hover:text-warn focus:opacity-100 group-hover:opacity-100 max-sm:opacity-100"
         >
-          {item.excluded ? "restore" : "skip"}
+          {item.excluded
+            ? "restore"
+            : item.supply === "pantry"
+              ? "have it"
+              : "skip"}
         </button>
       )}
     </li>

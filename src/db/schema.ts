@@ -28,11 +28,16 @@ export const ingredients = pgTable(
     name: text("name").notNull(),
     /** Grocery-aisle grouping, used to sort the shopping list. */
     category: text("category").notNull().default("other"),
-    /** True = we buy this every week regardless of what's on the meal plan. */
-    isStaple: boolean("is_staple").notNull().default(false),
-    /** Default amount to buy weekly when it's a staple. */
-    stapleQuantity: numeric("staple_quantity", { precision: 10, scale: 2 }),
-    stapleUnit: text("staple_unit"),
+    /**
+     * How this ingredient gets bought — see SUPPLY in lib/supply.ts.
+     *   weekly     buy every week no matter what's planned (milk, eggs)
+     *   pantry     kept in stock, replaced every month or two (olive oil)
+     *   per_recipe buy only when a recipe calls for it (chicken, broccoli)
+     */
+    supply: text("supply").notNull().default("per_recipe"),
+    /** Amount to buy each week — only meaningful for `weekly`. */
+    weeklyQuantity: numeric("weekly_quantity", { precision: 10, scale: 2 }),
+    weeklyUnit: text("weekly_unit"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [uniqueIndex("ingredients_name_lower_idx").on(sql`lower(${t.name})`)],

@@ -1,6 +1,6 @@
 import type { PlanEntry } from "./plans";
 import type { ShoppingItem } from "./shopping";
-import { groupByCategory } from "./shopping";
+import { groupByCategory, partitionList } from "./shopping";
 import { DAY_NAMES, addDays, formatWeekRange, parseISODate } from "./dates";
 
 function dayHeading(weekStart: string, dayIndex: number): string {
@@ -24,7 +24,8 @@ export function planAsText(weekStart: string, days: PlanEntry[][]): string {
 }
 
 export function shoppingAsText(weekStart: string, items: ShoppingItem[]): string {
-  const active = items.filter((i) => !i.excluded);
+  const { toBuy } = partitionList(items);
+  const active = toBuy.filter((i) => !i.excluded);
   const lines = [`Shopping list — week of ${formatWeekRange(weekStart)}`, ""];
 
   for (const [category, list] of groupByCategory(active)) {
@@ -40,8 +41,8 @@ export function shoppingAsText(weekStart: string, items: ShoppingItem[]): string
 
 /** One item per line, no decoration — Trello makes one card per line. */
 export function shoppingForTrello(items: ShoppingItem[]): string {
-  return items
-    .filter((i) => !i.excluded && !i.checked)
+  return partitionList(items)
+    .toBuy.filter((i) => !i.excluded && !i.checked)
     .map((i) => (i.amount ? `${i.name} (${i.amount})` : i.name))
     .join("\n");
 }

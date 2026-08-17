@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getPlanByToken, getPlanEntries, groupByDay } from "@/lib/plans";
-import { buildShoppingList, groupByCategory } from "@/lib/shopping";
+import { buildShoppingList, groupByCategory, partitionList } from "@/lib/shopping";
 import { DAY_NAMES, addDays, formatWeekRange, parseISODate } from "@/lib/dates";
 import { planForTrello, shoppingAsText, shoppingForTrello } from "@/lib/export";
 import ShoppingList from "@/components/shopping-list";
@@ -21,7 +21,8 @@ export default async function SharedPlanPage({ params }: PageProps<"/share/[toke
   const entries = await getPlanEntries(plan.id);
   const days = groupByDay(entries);
   const items = await buildShoppingList(plan.id);
-  const groups = groupByCategory(items.filter((i) => !i.excluded));
+  const { toBuy, pantryCheck } = partitionList(items);
+  const groups = groupByCategory(toBuy.filter((i) => !i.excluded));
 
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-10">
@@ -101,6 +102,20 @@ export default async function SharedPlanPage({ params }: PageProps<"/share/[toke
         </div>
 
         <ShoppingList groups={groups} />
+
+        {pantryCheck.length > 0 && (
+          <div className="mt-6 border-t border-line pt-4">
+            <p className="mb-2 eyebrow">Check the pantry</p>
+            <p className="flex flex-wrap gap-2">
+              {pantryCheck.map((item) => (
+                <span key={item.key} className="chip">
+                  {item.name}
+                  {item.amount && <span className="text-muted"> · {item.amount}</span>}
+                </span>
+              ))}
+            </p>
+          </div>
+        )}
       </section>
     </main>
   );

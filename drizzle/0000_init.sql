@@ -12,9 +12,9 @@ CREATE TABLE "ingredients" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
 	"category" text DEFAULT 'other' NOT NULL,
-	"is_staple" boolean DEFAULT false NOT NULL,
-	"staple_quantity" numeric(10, 2),
-	"staple_unit" text,
+	"supply" text DEFAULT 'per_recipe' NOT NULL,
+	"weekly_quantity" numeric(10, 2),
+	"weekly_unit" text,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint

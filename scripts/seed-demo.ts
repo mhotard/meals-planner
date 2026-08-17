@@ -9,13 +9,35 @@ import * as schema from "../src/db/schema";
 
 type Row = [qty: number | null, unit: string, name: string, note?: string];
 
-const STAPLES: { name: string; category: string; qty?: number; unit?: string }[] = [
+/** Bought every week no matter what's planned. */
+const WEEKLY: { name: string; category: string; qty?: number; unit?: string }[] = [
   { name: "milk", category: "dairy & eggs", qty: 1, unit: "gal" },
   { name: "eggs", category: "dairy & eggs", qty: 12, unit: "" },
   { name: "sandwich bread", category: "bakery", qty: 1, unit: "" },
   { name: "bananas", category: "produce", qty: 1, unit: "bunch" },
   { name: "coffee", category: "drinks", qty: 1, unit: "pkg" },
   { name: "paper towels", category: "household", qty: 1, unit: "pkg" },
+];
+
+/**
+ * Kept in the cupboard and replaced every month or two. These stay off the
+ * shopping list — they show up as a "check the pantry" prompt instead.
+ */
+const PANTRY = [
+  "olive oil",
+  "soy sauce",
+  "rice",
+  "spaghetti",
+  "penne pasta",
+  "crushed tomatoes",
+  "canned black beans",
+  "chicken broth",
+  "honey",
+  "smoked paprika",
+  "chili powder",
+  "cumin",
+  "oregano",
+  "salt & pepper",
 ];
 
 const CATEGORY_HINTS: Record<string, string> = {
@@ -180,16 +202,24 @@ async function main() {
     return created.id;
   }
 
-  for (const staple of STAPLES) {
-    const id = await ingredientId(staple.name);
+  for (const item of WEEKLY) {
+    const id = await ingredientId(item.name);
     await db
       .update(schema.ingredients)
       .set({
-        isStaple: true,
-        category: staple.category,
-        stapleQuantity: staple.qty == null ? null : String(staple.qty),
-        stapleUnit: staple.unit || null,
+        supply: "weekly",
+        category: item.category,
+        weeklyQuantity: item.qty == null ? null : String(item.qty),
+        weeklyUnit: item.unit || null,
       })
+      .where(sql`${schema.ingredients.id} = ${id}`);
+  }
+
+  for (const name of PANTRY) {
+    const id = await ingredientId(name);
+    await db
+      .update(schema.ingredients)
+      .set({ supply: "pantry" })
       .where(sql`${schema.ingredients.id} = ${id}`);
   }
 
@@ -226,7 +256,9 @@ async function main() {
     added++;
   }
 
-  console.log(`Seeded ${added} recipes and ${STAPLES.length} staples.`);
+  console.log(
+    `Seeded ${added} recipes, ${WEEKLY.length} every-week items, ${PANTRY.length} pantry items.`,
+  );
   await close();
 }
 
