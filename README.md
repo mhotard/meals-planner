@@ -83,9 +83,9 @@ src/
   app/(app)/        signed-in pages: home, recipes, plans, pantry, settings
   app/login/        sign in
   app/share/[token] public read-only week
-  components/       shared UI (shopping list, copy buttons, nav)
-  db/               Drizzle schema and the driver switch
-  lib/              units, dates, categories, shopping-list builder, exports
+  components/       shared UI (form primitives, shopping list, copy buttons, nav)
+  db/               Drizzle schema and the driver switch, shared with scripts/
+  lib/              units, dates, categories, form parsing, shopping-list builder, exports
   proxy.ts          route protection
 scripts/            migrate, seed, create user
 drizzle/            generated SQL migrations
