@@ -4,7 +4,7 @@
  * Safe to re-run: it skips recipes that already exist by name.
  */
 import { sql } from "drizzle-orm";
-import { connect } from "./connect";
+import { createConnection } from "../src/db/create";
 import { findIngredientByName } from "../src/lib/ingredients";
 import * as schema from "../src/db/schema";
 import type { Category } from "../src/lib/categories";
@@ -187,7 +187,7 @@ const RECIPES: {
 ];
 
 async function main() {
-  const { db, close } = await connect();
+  const { db, close } = await createConnection();
 
   async function ingredientId(name: string): Promise<number> {
     const found = await findIngredientByName(db, name);

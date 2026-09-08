@@ -5,7 +5,7 @@
  */
 import bcrypt from "bcryptjs";
 import { sql } from "drizzle-orm";
-import { connect } from "./connect";
+import { createConnection } from "../src/db/create";
 
 async function main() {
   const [email, name, password] = process.argv.slice(2);
@@ -15,7 +15,7 @@ async function main() {
   }
 
   const passwordHash = await bcrypt.hash(password, 12);
-  const { db, close } = await connect();
+  const { db, close } = await createConnection();
 
   await db.execute(sql`
     insert into users (email, name, password_hash)
