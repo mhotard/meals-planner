@@ -11,6 +11,8 @@ import {
   timestamp,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
+import { CATEGORIES } from "@/lib/categories";
+import { SUPPLY } from "@/lib/supply";
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -27,14 +29,14 @@ export const ingredients = pgTable(
     id: serial("id").primaryKey(),
     name: text("name").notNull(),
     /** Grocery-aisle grouping, used to sort the shopping list. */
-    category: text("category").notNull().default("other"),
+    category: text("category", { enum: CATEGORIES }).notNull().default("other"),
     /**
      * How this ingredient gets bought — see SUPPLY in lib/supply.ts.
      *   weekly     buy every week no matter what's planned (milk, eggs)
      *   pantry     kept in stock, replaced every month or two (olive oil)
      *   per_recipe buy only when a recipe calls for it (chicken, broccoli)
      */
-    supply: text("supply").notNull().default("per_recipe"),
+    supply: text("supply", { enum: SUPPLY }).notNull().default("per_recipe"),
     /** Amount to buy each week — only meaningful for `weekly`. */
     weeklyQuantity: numeric("weekly_quantity", { precision: 10, scale: 2 }),
     weeklyUnit: text("weekly_unit"),
@@ -117,7 +119,7 @@ export const planExtraItems = pgTable("plan_extra_items", {
   label: text("label").notNull(),
   quantity: numeric("quantity", { precision: 10, scale: 3 }),
   unit: text("unit"),
-  category: text("category").notNull().default("other"),
+  category: text("category", { enum: CATEGORIES }).notNull().default("other"),
 });
 
 /**

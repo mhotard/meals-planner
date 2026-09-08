@@ -2,15 +2,15 @@ import "server-only";
 
 import { eq, inArray } from "drizzle-orm";
 import { getDb, schema } from "@/db";
-import { categoryRank } from "./categories";
-import { toSupply, type Supply } from "./supply";
+import { categoryRank, type Category } from "./categories";
+import type { Supply } from "./supply";
 import { formatAmount, formatQuantity, fromBase, toBase, unitGroupKey } from "./units";
 
 export type ShoppingItem = {
   /** Stable across rebuilds so check/skip state sticks to the right line. */
   key: string;
   name: string;
-  category: string;
+  category: Category;
   amount: string;
   /** Which recipes drove this line, for the "why is this here?" hint. */
   fromRecipes: string[];
@@ -23,7 +23,7 @@ export type ShoppingItem = {
 
 type Accumulator = {
   name: string;
-  category: string;
+  category: Category;
   supply: Supply;
   base: number | null;
   unitsSeen: string[];
@@ -99,7 +99,7 @@ export async function buildShoppingList(planId: number): Promise<ShoppingItem[]>
     const key = `ing:${line.ingredientId}:${unitGroupKey(line.unit)}`;
     accumulate(
       key,
-      { name: line.name, category: line.category, supply: toSupply(line.supply) },
+      { name: line.name, category: line.category, supply: line.supply },
       quantity,
       line.unit,
       line.recipeName,
@@ -220,7 +220,7 @@ export function partitionList(items: ShoppingItem[]) {
 }
 
 export function groupByCategory(items: ShoppingItem[]) {
-  const map = new Map<string, ShoppingItem[]>();
+  const map = new Map<Category, ShoppingItem[]>();
   for (const item of items) {
     const list = map.get(item.category) ?? [];
     list.push(item);

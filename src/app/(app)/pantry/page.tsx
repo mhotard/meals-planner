@@ -1,7 +1,7 @@
 import { requireUser } from "@/lib/auth";
 import { listIngredients } from "@/lib/recipes";
 import { CATEGORIES, categoryIcon, categoryRank } from "@/lib/categories";
-import { SUPPLY, SUPPLY_LABELS, toSupply } from "@/lib/supply";
+import { SUPPLY, SUPPLY_LABELS } from "@/lib/supply";
 import { UNIT_OPTIONS } from "@/lib/units";
 import {
   addPantryItem,
@@ -17,8 +17,8 @@ export default async function PantryPage() {
   await requireUser();
   const ingredients = await listIngredients();
 
-  const weekly = ingredients.filter((i) => toSupply(i.supply) === "weekly");
-  const pantry = ingredients.filter((i) => toSupply(i.supply) === "pantry");
+  const weekly = ingredients.filter((i) => i.supply === "weekly");
+  const pantry = ingredients.filter((i) => i.supply === "pantry");
 
   const sorted = [...ingredients].sort(
     (a, b) =>
@@ -280,7 +280,7 @@ export default async function PantryPage() {
 
               <select
                 name="supply"
-                defaultValue={toSupply(ing.supply)}
+                defaultValue={ing.supply}
                 className="input"
                 aria-label={`How often you buy ${ing.name}`}
               >

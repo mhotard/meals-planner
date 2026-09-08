@@ -6,11 +6,12 @@
 import { sql } from "drizzle-orm";
 import { connect } from "./connect";
 import * as schema from "../src/db/schema";
+import type { Category } from "../src/lib/categories";
 
 type Row = [qty: number | null, unit: string, name: string, note?: string];
 
 /** Bought every week no matter what's planned. */
-const WEEKLY: { name: string; category: string; qty?: number; unit?: string }[] = [
+const WEEKLY: { name: string; category: Category; qty?: number; unit?: string }[] = [
   { name: "milk", category: "dairy & eggs", qty: 1, unit: "gal" },
   { name: "eggs", category: "dairy & eggs", qty: 12, unit: "" },
   { name: "sandwich bread", category: "bakery", qty: 1, unit: "" },
@@ -40,7 +41,7 @@ const PANTRY = [
   "salt & pepper",
 ];
 
-const CATEGORY_HINTS: Record<string, string> = {
+const CATEGORY_HINTS: Record<string, Category> = {
   "chicken thighs": "meat & seafood",
   "ground beef": "meat & seafood",
   salmon: "meat & seafood",

@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { getRecipe } from "@/lib/recipes";
 import { formatAmount } from "@/lib/units";
-import { SUPPLY_BADGES, toSupply } from "@/lib/supply";
+import { SUPPLY_BADGES } from "@/lib/supply";
 import { formatDate, relativeDays, toISODate } from "@/lib/dates";
 import { deleteCookLog, logCooked, updateRecipeNotes } from "../actions";
 import NotesEditor from "./notes-editor";
@@ -93,9 +93,9 @@ export default async function RecipePage({ params }: PageProps<"/recipes/[id]">)
                   {ing.name}
                   {ing.note && <span className="text-muted"> — {ing.note}</span>}
                 </span>
-                {SUPPLY_BADGES[toSupply(ing.supply)] && (
+                {SUPPLY_BADGES[ing.supply] && (
                   <span className="chip-accent shrink-0">
-                    {SUPPLY_BADGES[toSupply(ing.supply)]}
+                    {SUPPLY_BADGES[ing.supply]}
                   </span>
                 )}
               </li>
