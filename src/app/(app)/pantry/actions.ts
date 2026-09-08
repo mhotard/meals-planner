@@ -4,7 +4,9 @@ import { revalidatePath } from "next/cache";
 import { eq, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { requireUser } from "@/lib/auth";
-import { isCategory } from "@/lib/categories";
+import { toCategory } from "@/lib/categories";
+import { field, numericOrNull } from "@/lib/form";
+import { findIngredientByName } from "@/lib/ingredients";
 import { toSupply, type Supply } from "@/lib/supply";
 import { normalizeUnit } from "@/lib/units";
 
@@ -13,13 +15,11 @@ export async function updateIngredient(ingredientId: number, formData: FormData)
   await requireUser();
   const db = await getDb();
 
-  const category = String(formData.get("category") ?? "other");
-
   await db
     .update(schema.ingredients)
     .set({
       supply: toSupply(formData.get("supply")),
-      category: isCategory(category) ? category : "other",
+      category: toCategory(formData.get("category")),
     })
     .where(eq(schema.ingredients.id, ingredientId));
 
@@ -28,22 +28,15 @@ export async function updateIngredient(ingredientId: number, formData: FormData)
 
 export async function createIngredient(formData: FormData) {
   await requireUser();
-  const name = String(formData.get("name") ?? "").trim();
+  const name = field(formData, "name");
   if (!name) return;
 
-  const category = String(formData.get("category") ?? "other");
   const db = await getDb();
-
-  const [existing] = await db
-    .select({ id: schema.ingredients.id })
-    .from(schema.ingredients)
-    .where(sql`lower(${schema.ingredients.name}) = ${name.toLowerCase()}`)
-    .limit(1);
-  if (existing) return;
+  if (await findIngredientByName(db, name)) return;
 
   await db.insert(schema.ingredients).values({
     name,
-    category: isCategory(category) ? category : "other",
+    category: toCategory(formData.get("category")),
     supply: toSupply(formData.get("supply")),
   });
 
@@ -56,47 +49,28 @@ export async function createIngredient(formData: FormData) {
  */
 async function addToList(formData: FormData, supply: Supply) {
   await requireUser();
-  const name = String(formData.get("name") ?? "").trim();
+  const name = field(formData, "name");
   if (!name) return;
 
-  const quantityRaw = String(formData.get("quantity") ?? "").trim();
-  const quantity = Number(quantityRaw);
-  const category = String(formData.get("category") ?? "other");
+  const category = toCategory(formData.get("category"));
   const db = await getDb();
-
-  const [existing] = await db
-    .select({ id: schema.ingredients.id })
-    .from(schema.ingredients)
-    .where(sql`lower(${schema.ingredients.name}) = ${name.toLowerCase()}`)
-    .limit(1);
+  const existingId = await findIngredientByName(db, name);
 
   const values = {
     supply,
-    weeklyQuantity:
-      supply === "weekly" && quantityRaw && Number.isFinite(quantity)
-        ? String(quantity)
-        : null,
-    weeklyUnit:
-      supply === "weekly"
-        ? normalizeUnit(String(formData.get("unit") ?? "")) || null
-        : null,
+    weeklyQuantity: supply === "weekly" ? numericOrNull(field(formData, "quantity")) : null,
+    weeklyUnit: supply === "weekly" ? normalizeUnit(field(formData, "unit")) || null : null,
   };
 
-  if (existing) {
+  if (existingId) {
     // Only apply the aisle when one was actually chosen, so promoting an
     // already-categorised ingredient doesn't reset it to "other".
     await db
       .update(schema.ingredients)
-      .set(
-        isCategory(category) && category !== "other" ? { ...values, category } : values,
-      )
-      .where(eq(schema.ingredients.id, existing.id));
+      .set(category !== "other" ? { ...values, category } : values)
+      .where(eq(schema.ingredients.id, existingId));
   } else {
-    await db.insert(schema.ingredients).values({
-      name,
-      category: isCategory(category) ? category : "other",
-      ...values,
-    });
+    await db.insert(schema.ingredients).values({ name, category, ...values });
   }
 
   revalidatePath("/pantry");
@@ -129,15 +103,11 @@ export async function updateWeeklyAmount(ingredientId: number, formData: FormDat
   await requireUser();
   const db = await getDb();
 
-  const quantityRaw = String(formData.get("quantity") ?? "").trim();
-  const quantity = Number(quantityRaw);
-
   await db
     .update(schema.ingredients)
     .set({
-      weeklyQuantity:
-        quantityRaw && Number.isFinite(quantity) ? String(quantity) : null,
-      weeklyUnit: normalizeUnit(String(formData.get("unit") ?? "")) || null,
+      weeklyQuantity: numericOrNull(field(formData, "quantity")),
+      weeklyUnit: normalizeUnit(field(formData, "unit")) || null,
     })
     .where(eq(schema.ingredients.id, ingredientId));
 

@@ -5,13 +5,14 @@ import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { getDb, schema } from "@/db";
 import { endSession, startSession } from "@/lib/auth";
+import { field } from "@/lib/form";
 
 export type LoginState = { error?: string };
 
 export async function login(_prev: LoginState, formData: FormData): Promise<LoginState> {
-  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const email = field(formData, "email").toLowerCase();
   const password = String(formData.get("password") ?? "");
-  const next = String(formData.get("next") ?? "/");
+  const next = field(formData, "next") || "/";
 
   if (!email || !password) return { error: "Enter your email and password." };
 

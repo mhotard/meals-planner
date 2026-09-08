@@ -5,6 +5,7 @@
  */
 import { sql } from "drizzle-orm";
 import { connect } from "./connect";
+import { findIngredientByName } from "../src/lib/ingredients";
 import * as schema from "../src/db/schema";
 import type { Category } from "../src/lib/categories";
 
@@ -189,12 +190,8 @@ async function main() {
   const { db, close } = await connect();
 
   async function ingredientId(name: string): Promise<number> {
-    const [found] = await db
-      .select({ id: schema.ingredients.id })
-      .from(schema.ingredients)
-      .where(sql`lower(${schema.ingredients.name}) = ${name.toLowerCase()}`)
-      .limit(1);
-    if (found) return found.id;
+    const found = await findIngredientByName(db, name);
+    if (found) return found;
 
     const [created] = await db
       .insert(schema.ingredients)

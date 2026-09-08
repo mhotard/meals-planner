@@ -5,7 +5,8 @@ import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { requireUser } from "@/lib/auth";
-import { findOrCreateIngredient } from "@/lib/recipes";
+import { field, numericOrNull, optionalField, parseQuantity } from "@/lib/form";
+import { findOrCreateIngredient } from "@/lib/ingredients";
 import { normalizeUnit } from "@/lib/units";
 
 export type RecipeFormState = { error?: string };
@@ -20,35 +21,24 @@ function parseIngredientRows(formData: FormData) {
   return names
     .map((name, i) => ({
       name: name.trim(),
-      quantity: quantities[i]?.trim() ?? "",
-      unit: normalizeUnit(units[i]),
-      note: notes[i]?.trim() ?? "",
+      quantity: numericOrNull(quantities[i] ?? ""),
+      unit: normalizeUnit(units[i]) || null,
+      note: notes[i]?.trim() || null,
     }))
     .filter((row) => row.name.length > 0);
 }
 
-function parseNumber(value: string): number | null {
-  if (!value) return null;
-  // Accept "1 1/2" and "1/2" as well as plain decimals.
-  const mixed = value.match(/^(\d+)\s+(\d+)\/(\d+)$/);
-  if (mixed) return Number(mixed[1]) + Number(mixed[2]) / Number(mixed[3]);
-  const fraction = value.match(/^(\d+)\/(\d+)$/);
-  if (fraction) return Number(fraction[1]) / Number(fraction[2]);
-  const n = Number(value);
-  return Number.isFinite(n) ? n : null;
-}
-
 async function writeRecipe(formData: FormData, recipeId?: number) {
-  const name = String(formData.get("name") ?? "").trim();
+  const name = field(formData, "name");
   if (!name) return { error: "Give the recipe a name." };
 
   const values = {
     name,
-    description: String(formData.get("description") ?? "").trim() || null,
-    notes: String(formData.get("notes") ?? "").trim() || null,
-    sourceUrl: String(formData.get("sourceUrl") ?? "").trim() || null,
-    servings: parseNumber(String(formData.get("servings") ?? "")) ?? null,
-    prepMinutes: parseNumber(String(formData.get("prepMinutes") ?? "")) ?? null,
+    description: optionalField(formData, "description"),
+    notes: optionalField(formData, "notes"),
+    sourceUrl: optionalField(formData, "sourceUrl"),
+    servings: parseQuantity(field(formData, "servings")),
+    prepMinutes: parseQuantity(field(formData, "prepMinutes")),
     updatedAt: new Date(),
   };
 
@@ -70,14 +60,12 @@ async function writeRecipe(formData: FormData, recipeId?: number) {
   }
 
   for (const [i, row] of rows.entries()) {
-    const ingredientId = await findOrCreateIngredient(db, row.name);
-    const quantity = parseNumber(row.quantity);
     await db.insert(schema.recipeIngredients).values({
       recipeId: id,
-      ingredientId,
-      quantity: quantity == null ? null : String(quantity),
-      unit: row.unit || null,
-      note: row.note || null,
+      ingredientId: await findOrCreateIngredient(db, row.name),
+      quantity: row.quantity,
+      unit: row.unit,
+      note: row.note,
       sortOrder: i,
     });
   }
@@ -123,17 +111,13 @@ export async function logCooked(recipeId: number, formData: FormData) {
   const me = await requireUser();
   const db = await getDb();
 
-  const cookedOn =
-    String(formData.get("cookedOn") ?? "").trim() ||
-    new Date().toISOString().slice(0, 10);
-  const ratingRaw = String(formData.get("rating") ?? "").trim();
-
+  const rating = field(formData, "rating");
   await db.insert(schema.cookLogs).values({
     recipeId,
-    cookedOn,
+    cookedOn: field(formData, "cookedOn") || new Date().toISOString().slice(0, 10),
     userId: me.id,
-    rating: ratingRaw ? Number(ratingRaw) : null,
-    note: String(formData.get("note") ?? "").trim() || null,
+    rating: rating ? Number(rating) : null,
+    note: optionalField(formData, "note"),
   });
 
   revalidatePath(`/recipes/${recipeId}`);
@@ -153,10 +137,7 @@ export async function updateRecipeNotes(recipeId: number, formData: FormData) {
   const db = await getDb();
   await db
     .update(schema.recipes)
-    .set({
-      notes: String(formData.get("notes") ?? "").trim() || null,
-      updatedAt: new Date(),
-    })
+    .set({ notes: optionalField(formData, "notes"), updatedAt: new Date() })
     .where(eq(schema.recipes.id, recipeId));
   revalidatePath(`/recipes/${recipeId}`);
 }

@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { getDb, schema } from "@/db";
 import { requireUser } from "@/lib/auth";
+import { field } from "@/lib/form";
 
 export type FormResult = { error?: string; ok?: string };
 
@@ -41,8 +42,8 @@ export async function addMember(
   formData: FormData,
 ): Promise<FormResult> {
   await requireUser();
-  const name = String(formData.get("name") ?? "").trim();
-  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const name = field(formData, "name");
+  const email = field(formData, "email").toLowerCase();
   const password = String(formData.get("password") ?? "");
 
   if (!name || !email) return { error: "Name and email are required." };

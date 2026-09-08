@@ -40,3 +40,7 @@ export function categoryRank(category: string): number {
 export function isCategory(value: string): value is Category {
   return (CATEGORIES as readonly string[]).includes(value);
 }
+
+export function toCategory(value: unknown, fallback: Category = "other"): Category {
+  return typeof value === "string" && isCategory(value) ? value : fallback;
+}

@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, asc, desc, eq, ilike, sql } from "drizzle-orm";
+import { asc, desc, eq, ilike, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 
 export type RecipeListItem = {
@@ -107,26 +107,6 @@ export async function listIngredients() {
     .orderBy(asc(sql`lower(${schema.ingredients.name})`));
 }
 
-/** Look up an ingredient by name (case-insensitive), creating it if new. */
-export async function findOrCreateIngredient(
-  db: Awaited<ReturnType<typeof getDb>>,
-  rawName: string,
-): Promise<number> {
-  const name = rawName.trim();
-  const [existing] = await db
-    .select({ id: schema.ingredients.id })
-    .from(schema.ingredients)
-    .where(sql`lower(${schema.ingredients.name}) = ${name.toLowerCase()}`)
-    .limit(1);
-  if (existing) return existing.id;
-
-  const [created] = await db
-    .insert(schema.ingredients)
-    .values({ name })
-    .returning({ id: schema.ingredients.id });
-  return created.id;
-}
-
 export async function recentlyCooked(limit = 5) {
   const db = await getDb();
   return db
@@ -160,5 +140,3 @@ export async function staleFavorites(limit = 5) {
     .orderBy(asc(sql`max(${schema.cookLogs.cookedOn})`))
     .limit(limit);
 }
-
-export { and, eq };
