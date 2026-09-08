@@ -14,8 +14,7 @@ import {
   addExtraItem,
   clearCheckedItems,
   removeExtraItem,
-  toggleItemChecked,
-  toggleItemExcluded,
+  setItemState,
 } from "../../actions";
 
 export default async function ShoppingPage({
@@ -118,11 +117,11 @@ export default async function ShoppingPage({
           actions={{
             toggleChecked: async (itemKey: string, checked: boolean) => {
               "use server";
-              await toggleItemChecked(week, itemKey, checked);
+              await setItemState(week, itemKey, { checked });
             },
             toggleExcluded: async (itemKey: string, excluded: boolean) => {
               "use server";
-              await toggleItemExcluded(week, itemKey, excluded);
+              await setItemState(week, itemKey, { excluded });
             },
           }}
         />
@@ -132,7 +131,7 @@ export default async function ShoppingPage({
         items={pantryCheck}
         onAdd={async (itemKey: string) => {
           "use server";
-          await toggleItemExcluded(week, itemKey, false);
+          await setItemState(week, itemKey, { excluded: false });
         }}
       />
 
