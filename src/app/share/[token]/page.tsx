@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getPlanByToken, getPlanEntries, groupByDay } from "@/lib/plans";
 import { buildShoppingList, groupByCategory, partitionList } from "@/lib/shopping";
-import { DAY_NAMES, addDays, formatWeekRange, parseISODate } from "@/lib/dates";
+import { DAY_NAMES, addDays, formatShortDate, formatWeekRange } from "@/lib/dates";
 import { planForTrello, shoppingAsText, shoppingForTrello } from "@/lib/export";
 import ShoppingList from "@/components/shopping-list";
 import CopyButtons from "@/components/copy-buttons";
@@ -43,17 +43,13 @@ export default async function SharedPlanPage({ params }: PageProps<"/share/[toke
             const meals = days[dayIndex]
               .map((e) => e.recipeName ?? e.customLabel)
               .filter(Boolean);
-            const date = parseISODate(addDays(plan.weekStart, dayIndex));
 
             return (
               <li key={dayName} className="flex gap-4 py-2 text-sm">
                 <span className="w-36 shrink-0 whitespace-nowrap">
                   <span className="font-medium">{dayName}</span>
                   <span className="ml-1 text-xs text-muted">
-                    {new Intl.DateTimeFormat("en-US", {
-                      month: "short",
-                      day: "numeric",
-                    }).format(date)}
+                    {formatShortDate(addDays(plan.weekStart, dayIndex))}
                   </span>
                 </span>
                 <span className={meals.length ? "" : "text-muted"}>

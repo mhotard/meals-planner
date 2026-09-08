@@ -7,9 +7,9 @@ import { listRecipes } from "@/lib/recipes";
 import {
   DAY_NAMES,
   addDays,
+  formatShortDate,
   formatWeekRange,
   isValidWeekStart,
-  parseISODate,
   toISODate,
   weekStartOf,
 } from "@/lib/dates";
@@ -109,10 +109,9 @@ export default async function PlanPage({ params }: PageProps<"/plans/[week]">) {
 
       <div className="card divide-y divide-line">
         {DAY_NAMES.map((dayName, dayIndex) => {
-          const date = parseISODate(addDays(week, dayIndex));
+          const date = addDays(week, dayIndex);
           const dayEntries = days[dayIndex];
-
-          const isToday = addDays(week, dayIndex) === todayISO;
+          const isToday = date === todayISO;
 
           return (
             <div
@@ -128,10 +127,7 @@ export default async function PlanPage({ params }: PageProps<"/plans/[week]">) {
                   {dayName}
                 </p>
                 <p className="text-xs text-muted">
-                  {new Intl.DateTimeFormat("en-US", {
-                    month: "short",
-                    day: "numeric",
-                  }).format(date)}
+                  {formatShortDate(date)}
                   {isToday && <span className="ml-1 text-accent">· today</span>}
                 </p>
               </div>
@@ -176,10 +172,7 @@ export default async function PlanPage({ params }: PageProps<"/plans/[week]">) {
                 <div className="no-print">
                   <RecipePicker
                     dayLabel={dayName}
-                    dayDate={new Intl.DateTimeFormat("en-US", {
-                      month: "short",
-                      day: "numeric",
-                    }).format(date)}
+                    dayDate={formatShortDate(date)}
                     recipes={pickerRecipes}
                     plannedRecipeIds={plannedRecipeIds}
                     onPickRecipe={async (recipeId: number) => {

@@ -5,8 +5,8 @@ import { recentlyCooked, staleFavorites } from "@/lib/recipes";
 import {
   DAY_NAMES,
   addDays,
+  formatShortDate,
   formatWeekRange,
-  parseISODate,
   relativeDays,
   toISODate,
   weekStartOf,
@@ -68,12 +68,7 @@ export default async function HomePage() {
                     <span className={isToday ? "font-semibold text-accent" : "font-medium"}>
                       {dayName}
                     </span>
-                    <span className="text-xs text-muted">
-                      {new Intl.DateTimeFormat("en-US", {
-                        month: "short",
-                        day: "numeric",
-                      }).format(parseISODate(date))}
-                    </span>
+                    <span className="text-xs text-muted">{formatShortDate(date)}</span>
                   </span>
                   <span className="flex-1">
                     {meals.length === 0 ? (

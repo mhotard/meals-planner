@@ -58,6 +58,18 @@ export function formatWeekRange(weekStart: string): string {
   return `${startFmt} – ${endFmt}`;
 }
 
+/** "Sep 7" — for day labels next to a weekday name. */
+export function formatShortDate(iso: string): string {
+  return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(
+    parseISODate(iso),
+  );
+}
+
+/** "Monday Sep 7" — the day-of-week label used in plans and exports. */
+export function dayHeading(weekStart: string, dayIndex: number): string {
+  return `${DAY_NAMES[dayIndex]} ${formatShortDate(addDays(weekStart, dayIndex))}`;
+}
+
 export function formatDate(iso: string): string {
   return new Intl.DateTimeFormat("en-US", {
     month: "short",

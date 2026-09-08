@@ -1,19 +1,10 @@
-import { asc } from "drizzle-orm";
-import { getDb, schema } from "@/db";
 import { requireUser } from "@/lib/auth";
+import { listMembers } from "@/lib/users";
 import { AddMemberForm, PasswordForm } from "./forms";
 
 export default async function SettingsPage() {
   const me = await requireUser();
-  const db = await getDb();
-  const members = await db
-    .select({
-      id: schema.users.id,
-      name: schema.users.name,
-      email: schema.users.email,
-    })
-    .from(schema.users)
-    .orderBy(asc(schema.users.id));
+  const members = await listMembers();
 
   return (
     <div className="space-y-8">

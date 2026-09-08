@@ -1,16 +1,7 @@
 import type { PlanEntry } from "./plans";
 import type { ShoppingItem } from "./shopping";
 import { groupByCategory, partitionList } from "./shopping";
-import { DAY_NAMES, addDays, formatWeekRange, parseISODate } from "./dates";
-
-function dayHeading(weekStart: string, dayIndex: number): string {
-  const date = parseISODate(addDays(weekStart, dayIndex));
-  const short = new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-  }).format(date);
-  return `${DAY_NAMES[dayIndex]} ${short}`;
-}
+import { dayHeading, formatWeekRange } from "./dates";
 
 export function planAsText(weekStart: string, days: PlanEntry[][]): string {
   const lines = [`Meals — week of ${formatWeekRange(weekStart)}`, ""];

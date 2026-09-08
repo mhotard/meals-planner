@@ -1,7 +1,7 @@
 import "server-only";
 
 import { randomBytes } from "node:crypto";
-import { asc, desc, eq } from "drizzle-orm";
+import { asc, desc, eq, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 
 export function newShareToken(): string {
@@ -64,26 +64,16 @@ export function groupByDay(entries: PlanEntry[]): PlanEntry[][] {
 
 export async function listPlans() {
   const db = await getDb();
-  const plans = await db
+  return db
     .select({
       id: schema.mealPlans.id,
       weekStart: schema.mealPlans.weekStart,
       shareToken: schema.mealPlans.shareToken,
+      // Literal SQL with an alias, for the same reason as in lib/recipes.ts.
+      mealCount: sql<number>`(
+        select count(*)::int from meal_plan_entries e where e.plan_id = meal_plans.id
+      )`,
     })
     .from(schema.mealPlans)
     .orderBy(desc(schema.mealPlans.weekStart));
-
-  const counts = await db
-    .select({
-      planId: schema.mealPlanEntries.planId,
-      count: schema.mealPlanEntries.id,
-    })
-    .from(schema.mealPlanEntries);
-
-  const byPlan = new Map<number, number>();
-  for (const row of counts) {
-    byPlan.set(row.planId, (byPlan.get(row.planId) ?? 0) + 1);
-  }
-
-  return plans.map((p) => ({ ...p, mealCount: byPlan.get(p.id) ?? 0 }));
 }
