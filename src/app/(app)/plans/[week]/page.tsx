@@ -23,7 +23,7 @@ import {
 } from "../actions";
 import RecipePicker from "./recipe-picker";
 import ShareLink from "./share-link";
-import PlanNotes from "./plan-notes";
+import InlineNotes from "@/components/inline-notes";
 
 export default async function PlanPage({ params }: PageProps<"/plans/[week]">) {
   await requireUser();
@@ -198,7 +198,14 @@ export default async function PlanPage({ params }: PageProps<"/plans/[week]">) {
         })}
       </div>
 
-      <PlanNotes notes={plan.notes ?? ""} action={updatePlanNotes.bind(null, week)} />
+      <InlineNotes
+        title="Week notes"
+        notes={plan.notes ?? ""}
+        placeholder="Soccer Tuesday — needs to be fast. Guests Saturday."
+        emptyText="No notes for this week."
+        rows={3}
+        action={updatePlanNotes.bind(null, week)}
+      />
 
       <div className="no-print card flex flex-wrap items-center justify-between gap-3 p-6">
         <div>

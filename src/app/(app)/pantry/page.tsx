@@ -1,8 +1,7 @@
 import { requireUser } from "@/lib/auth";
 import { listIngredients } from "@/lib/recipes";
-import { CATEGORIES, categoryIcon, categoryRank } from "@/lib/categories";
-import { SUPPLY, SUPPLY_LABELS } from "@/lib/supply";
-import { UNIT_OPTIONS } from "@/lib/units";
+import { categoryIcon, categoryRank } from "@/lib/categories";
+import { CategorySelect, SupplySelect, UnitSelect } from "@/components/form";
 import {
   addPantryItem,
   addWeeklyItem,
@@ -71,18 +70,12 @@ export default async function PantryPage() {
                     inputMode="decimal"
                     aria-label={`Weekly quantity for ${item.name}`}
                   />
-                  <select
+                  <UnitSelect
                     name="unit"
                     defaultValue={item.weeklyUnit ?? ""}
                     className="input w-24 px-2 py-1"
                     aria-label={`Unit for ${item.name}`}
-                  >
-                    {UNIT_OPTIONS.map((u) => (
-                      <option key={u} value={u}>
-                        {u || "—"}
-                      </option>
-                    ))}
-                  </select>
+                  />
                   <button type="submit" className="btn-ghost px-2 py-1 text-xs">
                     Save
                   </button>
@@ -127,20 +120,8 @@ export default async function PantryPage() {
             inputMode="decimal"
             aria-label="Quantity"
           />
-          <select name="unit" className="input" aria-label="Unit" defaultValue="">
-            {UNIT_OPTIONS.map((u) => (
-              <option key={u} value={u}>
-                {u || "—"}
-              </option>
-            ))}
-          </select>
-          <select name="category" className="input" aria-label="Grocery aisle" defaultValue="other">
-            {CATEGORIES.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </select>
+          <UnitSelect name="unit" aria-label="Unit" defaultValue="" />
+          <CategorySelect name="category" aria-label="Grocery aisle" defaultValue="other" />
           <button type="submit" className="btn-primary">
             Add
           </button>
@@ -191,13 +172,7 @@ export default async function PantryPage() {
             placeholder="Add a pantry item…"
             aria-label="Pantry item name"
           />
-          <select name="category" className="input" aria-label="Grocery aisle" defaultValue="other">
-            {CATEGORIES.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </select>
+          <CategorySelect name="category" aria-label="Grocery aisle" defaultValue="other" />
           <button type="submit" className="btn-secondary">
             Add
           </button>
@@ -224,20 +199,8 @@ export default async function PantryPage() {
           placeholder="Add an ingredient (e.g. tahini)"
           aria-label="Ingredient name"
         />
-        <select name="category" className="input" aria-label="Category" defaultValue="other">
-          {CATEGORIES.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </select>
-        <select name="supply" className="input" aria-label="How often" defaultValue="per_recipe">
-          {SUPPLY.map((s) => (
-            <option key={s} value={s}>
-              {SUPPLY_LABELS[s]}
-            </option>
-          ))}
-        </select>
+        <CategorySelect name="category" aria-label="Category" defaultValue="other" />
+        <SupplySelect name="supply" aria-label="How often" defaultValue="per_recipe" />
         <button type="submit" className="btn-primary">
           Add
         </button>
@@ -265,31 +228,17 @@ export default async function PantryPage() {
                 </div>
               </div>
 
-              <select
+              <CategorySelect
                 name="category"
                 defaultValue={ing.category}
-                className="input"
                 aria-label={`Aisle for ${ing.name}`}
-              >
-                {CATEGORIES.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
+              />
 
-              <select
+              <SupplySelect
                 name="supply"
                 defaultValue={ing.supply}
-                className="input"
                 aria-label={`How often you buy ${ing.name}`}
-              >
-                {SUPPLY.map((s) => (
-                  <option key={s} value={s}>
-                    {SUPPLY_LABELS[s]}
-                  </option>
-                ))}
-              </select>
+              />
 
               <div className="flex items-center gap-2">
                 <button type="submit" className="btn-secondary">

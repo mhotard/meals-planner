@@ -6,7 +6,7 @@ import { formatAmount } from "@/lib/units";
 import { SUPPLY_BADGES } from "@/lib/supply";
 import { formatDate, relativeDays, toISODate } from "@/lib/dates";
 import { deleteCookLog, logCooked, updateRecipeNotes } from "../actions";
-import NotesEditor from "./notes-editor";
+import InlineNotes from "@/components/inline-notes";
 
 export default async function RecipePage({ params }: PageProps<"/recipes/[id]">) {
   await requireUser();
@@ -104,9 +104,10 @@ export default async function RecipePage({ params }: PageProps<"/recipes/[id]">)
         )}
       </section>
 
-      <NotesEditor
-        recipeId={recipe.id}
+      <InlineNotes
+        title="Notes"
         notes={recipe.notes ?? ""}
+        placeholder="Halve the chili next time. Great with rice."
         action={updateRecipeNotes.bind(null, recipe.id)}
       />
 

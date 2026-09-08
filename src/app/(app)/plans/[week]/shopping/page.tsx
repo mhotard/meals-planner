@@ -5,11 +5,10 @@ import { getPlanByWeek, getPlanEntries, groupByDay } from "@/lib/plans";
 import { buildShoppingList, groupByCategory, partitionList } from "@/lib/shopping";
 import { formatWeekRange, isValidWeekStart } from "@/lib/dates";
 import { planForTrello, shoppingAsText, shoppingForTrello } from "@/lib/export";
-import { CATEGORIES } from "@/lib/categories";
-import { UNIT_OPTIONS } from "@/lib/units";
 import ShoppingList from "@/components/shopping-list";
 import PantryCheck from "@/components/pantry-check";
 import CopyButtons from "@/components/copy-buttons";
+import { CategorySelect, UnitSelect } from "@/components/form";
 import {
   addExtraItem,
   clearCheckedItems,
@@ -155,25 +154,8 @@ export default async function ShoppingPage({
             inputMode="decimal"
             aria-label="Quantity"
           />
-          <select name="unit" className="input" aria-label="Unit" defaultValue="">
-            {UNIT_OPTIONS.map((u) => (
-              <option key={u} value={u}>
-                {u || "—"}
-              </option>
-            ))}
-          </select>
-          <select
-            name="category"
-            className="input"
-            aria-label="Category"
-            defaultValue="other"
-          >
-            {CATEGORIES.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </select>
+          <UnitSelect name="unit" aria-label="Unit" defaultValue="" />
+          <CategorySelect name="category" aria-label="Category" defaultValue="other" />
           <button type="submit" className="btn-primary">
             Add
           </button>

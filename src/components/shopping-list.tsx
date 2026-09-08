@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useOptimistic, useTransition } from "react";
 import { categoryIcon } from "@/lib/categories";
 import type { ShoppingItem } from "@/lib/shopping";
 
@@ -11,8 +11,9 @@ type Actions = {
 
 function Row({ item, actions }: { item: ShoppingItem; actions?: Actions }) {
   const [pending, startTransition] = useTransition();
-  // Optimistic so tapping through a list in the store feels instant.
-  const [checked, setChecked] = useState(item.checked);
+  // Optimistic so tapping through a list in the store feels instant; falls
+  // back to the server value once the action settles or the page refreshes.
+  const [checked, setChecked] = useOptimistic(item.checked);
 
   const readOnly = !actions;
 
@@ -29,8 +30,8 @@ function Row({ item, actions }: { item: ShoppingItem; actions?: Actions }) {
           disabled={readOnly || item.excluded}
           onChange={(e) => {
             const next = e.target.checked;
-            setChecked(next);
             startTransition(async () => {
+              setChecked(next);
               await actions?.toggleChecked(item.key, next);
             });
           }}

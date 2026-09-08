@@ -1,35 +1,8 @@
 "use client";
 
 import { useActionState } from "react";
-import { useFormStatus } from "react-dom";
+import { FormMessage, SubmitButton } from "@/components/form";
 import { addMember, changePassword, type FormResult } from "./actions";
-
-function Submit({ label }: { label: string }) {
-  const { pending } = useFormStatus();
-  return (
-    <button type="submit" className="btn-primary" disabled={pending}>
-      {pending ? "Saving…" : label}
-    </button>
-  );
-}
-
-function Feedback({ state }: { state: FormResult }) {
-  if (state.error) {
-    return (
-      <p role="alert" className="rounded-lg bg-warn/10 px-3 py-2 text-sm text-warn">
-        {state.error}
-      </p>
-    );
-  }
-  if (state.ok) {
-    return (
-      <p role="status" className="rounded-lg bg-accent-soft px-3 py-2 text-sm text-accent">
-        {state.ok}
-      </p>
-    );
-  }
-  return null;
-}
 
 export function PasswordForm() {
   const [state, action] = useActionState<FormResult, FormData>(changePassword, {});
@@ -54,8 +27,8 @@ export function PasswordForm() {
           className="input"
         />
       </div>
-      <Feedback state={state} />
-      <Submit label="Change password" />
+      <FormMessage state={state} />
+      <SubmitButton label="Change password" />
     </form>
   );
 }
@@ -92,8 +65,8 @@ export function AddMemberForm() {
           placeholder="They can change it after signing in"
         />
       </div>
-      <Feedback state={state} />
-      <Submit label="Add member" />
+      <FormMessage state={state} />
+      <SubmitButton label="Add member" />
     </form>
   );
 }

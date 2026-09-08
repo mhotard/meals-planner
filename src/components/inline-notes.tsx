@@ -1,23 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { useFormStatus } from "react-dom";
+import { SubmitButton } from "./form";
 
-function SaveButton() {
-  const { pending } = useFormStatus();
-  return (
-    <button type="submit" className="btn-primary" disabled={pending}>
-      {pending ? "Saving…" : "Save notes"}
-    </button>
-  );
-}
-
-export default function NotesEditor({
+/** A notes card that reads as text and turns into a textarea on demand. */
+export default function InlineNotes({
+  title,
   notes,
+  placeholder,
+  emptyText = "No notes yet.",
+  rows = 4,
   action,
 }: {
-  recipeId: number;
+  title: string;
   notes: string;
+  placeholder: string;
+  emptyText?: string;
+  rows?: number;
   action: (formData: FormData) => Promise<void>;
 }) {
   const [editing, setEditing] = useState(false);
@@ -25,12 +24,12 @@ export default function NotesEditor({
   return (
     <section className="card p-6">
       <div className="mb-3 flex items-baseline justify-between">
-        <h2 className="display text-lg">Notes</h2>
+        <h2 className="display text-lg">{title}</h2>
         {!editing && (
           <button
             type="button"
             onClick={() => setEditing(true)}
-            className="text-sm text-accent hover:underline"
+            className="no-print text-sm text-accent hover:underline"
           >
             {notes ? "Edit" : "Add a note"}
           </button>
@@ -47,19 +46,15 @@ export default function NotesEditor({
         >
           <textarea
             name="notes"
-            rows={4}
+            rows={rows}
             defaultValue={notes}
             autoFocus
             className="input resize-y"
-            placeholder="Halve the chili next time. Great with rice."
+            placeholder={placeholder}
           />
           <div className="flex gap-2">
-            <SaveButton />
-            <button
-              type="button"
-              onClick={() => setEditing(false)}
-              className="btn-ghost"
-            >
+            <SubmitButton label="Save" />
+            <button type="button" onClick={() => setEditing(false)} className="btn-ghost">
               Cancel
             </button>
           </div>
@@ -67,7 +62,7 @@ export default function NotesEditor({
       ) : notes ? (
         <p className="whitespace-pre-wrap text-sm">{notes}</p>
       ) : (
-        <p className="text-sm text-muted">No notes yet.</p>
+        <p className="text-sm text-muted">{emptyText}</p>
       )}
     </section>
   );

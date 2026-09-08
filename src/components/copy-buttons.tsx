@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCopy } from "@/lib/use-copy";
 
 type Format = { id: string; label: string; hint: string; text: string };
 
@@ -10,19 +10,7 @@ type Format = { id: string; label: string; hint: string; text: string };
  * bullet characters, one item per line.
  */
 export default function CopyButtons({ formats }: { formats: Format[] }) {
-  const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
-
-  async function copy(format: Format) {
-    try {
-      await navigator.clipboard.writeText(format.text);
-      setCopiedId(format.id);
-      setTimeout(() => setCopiedId((id) => (id === format.id ? null : id)), 2000);
-    } catch {
-      // Clipboard can be blocked; show the text so it can be copied by hand.
-      setPreview(format.text);
-    }
-  }
+  const { copied, failedText, copy } = useCopy();
 
   return (
     <div className="no-print space-y-3">
@@ -31,11 +19,11 @@ export default function CopyButtons({ formats }: { formats: Format[] }) {
           <button
             key={format.id}
             type="button"
-            onClick={() => copy(format)}
+            onClick={() => copy(format.text, format.id)}
             className="btn-secondary"
             title={format.hint}
           >
-            {copiedId === format.id ? "Copied ✓" : format.label}
+            {copied === format.id ? "Copied ✓" : format.label}
           </button>
         ))}
         <button type="button" onClick={() => window.print()} className="btn-ghost">
@@ -43,7 +31,7 @@ export default function CopyButtons({ formats }: { formats: Format[] }) {
         </button>
       </div>
 
-      {preview && (
+      {failedText && (
         <div>
           <p className="mb-1 text-xs text-muted">
             Couldn&apos;t reach the clipboard — select and copy:
@@ -51,7 +39,7 @@ export default function CopyButtons({ formats }: { formats: Format[] }) {
           <textarea
             readOnly
             rows={10}
-            value={preview}
+            value={failedText}
             className="input font-mono text-xs"
             onFocus={(e) => e.currentTarget.select()}
           />

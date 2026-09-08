@@ -1,9 +1,8 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { useFormStatus } from "react-dom";
 import Link from "next/link";
-import { UNIT_OPTIONS } from "@/lib/units";
+import { FormMessage, SubmitButton, UnitSelect } from "@/components/form";
 import type { RecipeFormState } from "./actions";
 
 export type IngredientRow = {
@@ -24,15 +23,6 @@ export type RecipeDefaults = {
   prepMinutes: string;
   ingredients: IngredientRow[];
 };
-
-function SaveButton({ label }: { label: string }) {
-  const { pending } = useFormStatus();
-  return (
-    <button type="submit" className="btn-primary" disabled={pending}>
-      {pending ? "Saving…" : label}
-    </button>
-  );
-}
 
 export default function RecipeForm({
   action,
@@ -157,19 +147,13 @@ export default function RecipeForm({
                 placeholder="2"
                 inputMode="decimal"
               />
-              <select
+              <UnitSelect
                 aria-label="Unit"
                 name="ing-unit"
                 value={row.unit}
                 onChange={(e) => update(i, { unit: e.target.value })}
                 className="input col-span-3 sm:col-span-2"
-              >
-                {UNIT_OPTIONS.map((u) => (
-                  <option key={u} value={u}>
-                    {u || "—"}
-                  </option>
-                ))}
-              </select>
+              />
               <input
                 aria-label="Ingredient"
                 name="ing-name"
@@ -219,14 +203,10 @@ export default function RecipeForm({
         />
       </section>
 
-      {state.error && (
-        <p role="alert" className="rounded-lg bg-warn/10 px-3 py-2 text-sm text-warn">
-          {state.error}
-        </p>
-      )}
+      <FormMessage state={state} />
 
       <div className="flex items-center gap-3">
-        <SaveButton label={submitLabel} />
+        <SubmitButton label={submitLabel} />
         <Link href={cancelHref} className="btn-ghost">
           Cancel
         </Link>

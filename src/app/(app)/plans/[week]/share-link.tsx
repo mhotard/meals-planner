@@ -1,21 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useCopy } from "@/lib/use-copy";
 
 export default function ShareLink({ url, path }: { url: string; path: string }) {
-  const [copied, setCopied] = useState(false);
-  const [failed, setFailed] = useState(false);
-
-  async function copy() {
-    try {
-      await navigator.clipboard.writeText(url);
-      setCopied(true);
-      setFailed(false);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      setFailed(true);
-    }
-  }
+  const { copied, failedText, copy } = useCopy();
 
   return (
     <div className="no-print card p-4">
@@ -26,7 +14,7 @@ export default function ShareLink({ url, path }: { url: string; path: string }) 
             Anyone with the link can view the plan and shopping list — no login needed
           </p>
         </div>
-        <button type="button" onClick={copy} className="btn-secondary shrink-0">
+        <button type="button" onClick={() => copy(url)} className="btn-secondary shrink-0">
           {copied ? "Copied ✓" : "Copy link"}
         </button>
         <a href={path} target="_blank" rel="noreferrer" className="btn-ghost shrink-0">
@@ -34,10 +22,10 @@ export default function ShareLink({ url, path }: { url: string; path: string }) 
         </a>
       </div>
 
-      {failed && (
+      {failedText && (
         <input
           readOnly
-          value={url}
+          value={failedText}
           onFocus={(e) => e.currentTarget.select()}
           className="input mt-3 font-mono text-xs"
         />
