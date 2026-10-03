@@ -47,8 +47,8 @@ from feature owners; CI belongs to 05.
 
 ## Handoff and acceptance
 
-Coordinator acceptance: pending. Scaffold/spec work in progress; final
-verification must run on the integrated 01–03 candidate.
+Coordinator acceptance: pending. Implementation and integrated verification
+are complete; the coordinator owns final review and acceptance.
 
 - Dependency commit: `bc55ad0f08778e3c24567261c8b9cc0b49ce9a11`.
   Package/lockfile grant released back to coordinator; coordinator owns the
@@ -149,9 +149,10 @@ fixes for custom unit inherited properties still awaited at this point.
   acceptance remains separate. No application defect was attributed to the
   prior wire-format or response-metadata harness failures.
 
-Pending: full suite twice and check/build on integrated task 03, then coordinator
-review. Browser environment remains Node v25.5.0/macOS arm64; Node 22/Linux CI
-evidence belongs to 05. Production HTTPS and OS print preview remain task 06.
+At this targeted-evidence checkpoint, full suite twice and check/build on
+integrated task 03 were pending. They are completed below. Browser environment
+remains Node v25.5.0/macOS arm64; Node 22/Linux CI evidence belongs to 05.
+Production HTTPS and OS print preview remain task 06.
 
 ### Coverage review while waiting for 03
 
@@ -186,3 +187,58 @@ evidence belongs to 05. Production HTTPS and OS print preview remain task 06.
   Chromium desktop, disposable PGlite and Webpack environment as above.
 - `rg` audit found no generated-password fill/type or credential-valued
   `toHaveValue` assertions remaining. Full suite still awaits integrated 03.
+
+### Final integrated clean-checkout evidence (04.1–04.4)
+
+Verified source/test/config commit:
+`e6249da0c6bcecfb1edaf7efae4809f9abf0710f` (accepted 01–03 and reviewed harness
+fix `de5a103`). Coordinator-created detached fresh checkout:
+`/private/tmp/meals-task04-final`. No application, test or configuration edits
+occurred between the two full runs; documentation-only coordinator work did not
+change the tested commit.
+
+Environment: macOS arm64, Node `v25.5.0`, npm committed lockfile, Next `16.3.8`,
+Playwright `1.63.0`, Chromium headless 153.0.8010.12 (revision 1243), one worker,
+zero retries, development Webpack loopback HTTP. Each test migrated a new OS
+temporary PGlite directory, used generated synthetic credentials and its own
+server. Production compilation used Webpack and explicit disposable DB config.
+
+| Exact command (fresh checkout) | Result |
+| --- | --- |
+| `git rev-parse HEAD` | Exact SHA above before/after the stability pair |
+| `git status --short` | Empty before installation and after both runs |
+| `npm ci` | Passed; 389 packages added, 390 audited in 8s. Npm reported 9 dev-inclusive advisories (4 moderate/5 high); no dependency change or claim that this audit was clean |
+| `npm run check` | Passed ESLint, fresh route types, TypeScript, 31/31 unit/integration tests; test runner 12.185s |
+| `DATABASE_URL= PGLITE_DIR=/private/tmp/meals-final-build npm run build -- --webpack` | Passed production compilation (5.0s), TypeScript (2.3s), page data/static generation and route output |
+| `npm run test:e2e` — first complete run | Passed 14/14 in 5.5m, no retries |
+| `npm run test:e2e` — second sequential complete run | Passed 14/14 in 5.4m, no retries |
+| `test ! -e .pglite` | Passed before, between and after the full runs |
+
+Both runs exercised custom count units, 37 crafted invalid-action cases with
+no-write digests, 27 valid mutation payloads in each of signed-out/invalid-token/
+expired-token/deleted-user contexts with no writes, real Settings validation and
+two-session revocation, durable login throttling, actual CLI reset revocation,
+desktop 1280×900 and phone 390×844 household flows, public share mutation denial,
+exports/print CSS, recipe create/edit/reload/notes/cook-history/search/delete, and
+visible recipe/pantry/plan errors followed by valid correction. Transaction
+rollback fault injection is covered by the real-database tests in the 31-test
+check; browser recipe flows exercise the integrated transactional writer.
+
+First/second household viewport timings were 29.9s/30.1s (desktop) and
+29.9s/30.1s (phone); recipe CRUD 15.6s/15.4s; visible pantry/plan errors and
+correction 11.3s/11.5s. All named action/authentication cases passed both times.
+No failure screenshots, traces, sessions or credential-bearing reports were
+produced. The only console snapshot change was the expected `users` table name
+after password change; account values remained in memory.
+
+Cleanup evidence command:
+`node -e "const fs=require('node:fs');const os=require('node:os');console.log(fs.readdirSync(os.tmpdir()).filter(n=>n.startsWith('meals-e2e-')).length)"`
+returned zero before, between and after runs. Fixture teardown also asserts each
+test directory has gone. The disposable build path was not created; no `.pglite`
+directory existed in the fresh checkout. The final detached checkout remains
+clean at the verified SHA. Household data was never opened or modified.
+
+Remaining checks: coordinator review/acceptance; Node 22/Linux CI belongs to 05;
+actual HTTPS production mode and secure-cookie evidence belongs to 06. OS print
+preview, Firefox and WebKit are unavailable in this initial Chromium suite and
+have not been reported as passed. No browser-suite defect remains open locally.
