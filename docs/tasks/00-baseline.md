@@ -1,7 +1,7 @@
 # 00 — Preserve a reproducible baseline
 
-Status: in_progress. Owner: coordinator (/root).
-Dependencies: none. Branch: codex/release-baseline. Baseline commit: pending.
+Status: accepted. Owner: coordinator (/root).
+Dependencies: none. Branch: codex/release-baseline. Baseline commit: 868d22614355dac71ee3a72dd63cda51cdfd1e30.
 
 ## Goal and ownership
 
@@ -55,3 +55,11 @@ Environment: macOS, Node v25.5.0, npm 11.8.0, Next 16.3.0.
 - `git diff --check`: exit 0.
 
 Fresh-checkout installation/build and disposable setup smoke pending.
+
+Fresh checkout /private/tmp/meals-baseline-868d226 at 868d22614355dac71ee3a72dd63cda51cdfd1e30:
+- npm ci: exit 0, 386 packages installed; no inherited generated state.
+- npm run check: exit 0, 11/11 tests and lint/typegen/TypeScript passed.
+- DATABASE_URL= npm run build -- --webpack: sandbox DNS failure fetching Google Fonts; network-enabled retry exit 0.
+- DATABASE_URL= PGLITE_DIR=/private/tmp/meals-baseline-db-868d226 npm run db:migrate, synthetic account setup, npm run seed: exit 0. Six recipes, six weekly items, fourteen pantry items.
+- npm run dev -- --webpack --port 3010: sandbox port denied; network-enabled retry started. In-app browser: signed-out / redirected to /login; synthetic login showed authenticated dashboard. Server stopped; disposable database removed.
+- G0 accepted by coordinator after review. No household database accessed.

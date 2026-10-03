@@ -23,7 +23,7 @@ URL, production database, backup policy, or deployment account has been verified
 
 | Gate | Deliverable | Evidence required to pass | Initial status |
 | --- | --- | --- | --- |
-| G0 | Reproducible, committed baseline | Fresh checkout installs, checks/builds; baseline commit and ownership recorded | Pending: task 00 ready |
+| G0 | Reproducible, committed baseline | Fresh checkout installs, checks/builds; baseline commit and ownership recorded | Accepted: 868d226; fresh checkout verification in task 00 |
 | G1 | Reliable release candidate | Tasks 01–04 accepted; CI green on one integrated commit; no unresolved release-blocking defects | Pending |
 | G2 | Working hosted staging app | HTTPS staging URL and commit recorded; hosted Postgres tested; isolated environments; backup restored successfully; rollback rehearsed | Pending |
 | G3 | Household production release | Production URL/commit recorded; release flow and data decision verified; monitoring/backups active; named operator accepts handoff | Pending |
@@ -89,3 +89,5 @@ implementation until the baseline is reproducible.
 Each packet includes implementation steps, acceptance checks, dependencies,
 and a handoff section. Required checks must pass on the same candidate commit.
 An unavailable check leaves its release gate pending; it is not a pass.
+
+Execution update October 2, 2026: restructuring preserved in baseline 868d226. G0 accepted; 01/02/04 scaffold assigned with exclusive ownership. Remaining gate evidence pending.
