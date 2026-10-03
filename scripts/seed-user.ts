@@ -5,27 +5,30 @@
  */
 import "./env";
 import bcrypt from "bcryptjs";
-import { sql } from "drizzle-orm";
+import { upsertLogin } from "../src/db/auth";
+import { memberName, normalizeEmail, passwordError } from "../src/lib/auth-input";
 import { createConnection } from "../src/db/create";
 
 async function main() {
-  const [email, name, password] = process.argv.slice(2);
-  if (!email || !name || !password) {
+  const [rawEmail, rawName, password] = process.argv.slice(2);
+  const email = normalizeEmail(rawEmail);
+  const name = memberName(rawName);
+  const invalid = passwordError(password);
+  if (!email || !name || invalid) {
     console.error("usage: tsx scripts/seed-user.ts <email> <name> <password>");
+    if (invalid) console.error(invalid);
     process.exit(1);
   }
 
   const passwordHash = await bcrypt.hash(password, 12);
   const { db, close } = await createConnection();
 
-  await db.execute(sql`
-    insert into users (email, name, password_hash)
-    values (${email.toLowerCase()}, ${name}, ${passwordHash})
-    on conflict (email) do update set name = excluded.name, password_hash = excluded.password_hash
-  `);
-
-  console.log(`Login ready: ${email}`);
-  await close();
+  try {
+    await upsertLogin(db, email, name, passwordHash);
+    console.log("Login ready; previous sessions revoked on reset.");
+  } finally {
+    await close();
+  }
 }
 
 main().catch((err) => {

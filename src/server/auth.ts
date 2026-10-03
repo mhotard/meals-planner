@@ -2,50 +2,15 @@ import "server-only";
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { SignJWT, jwtVerify } from "jose";
+import { getDb } from "@/db";
+import { findSessionUser } from "@/db/auth";
+import { SESSION_COOKIE, SESSION_DAYS } from "@/lib/auth-token";
+import type { SessionUser } from "@/lib/auth-token";
+export { SESSION_COOKIE } from "@/lib/auth-token";
+export type { SessionUser } from "@/lib/auth-token";
 
-export const SESSION_COOKIE = "meals_session";
-const SESSION_DAYS = 30;
-
-export type SessionUser = { id: number; name: string; email: string };
-
-/**
- * In production AUTH_SECRET must be set. Locally we fall back to a fixed dev
- * secret so the app runs with no setup — it only ever signs local sessions.
- */
-export function getSecret(): Uint8Array {
-  const secret = process.env.AUTH_SECRET;
-  if (!secret) {
-    if (process.env.NODE_ENV === "production") {
-      throw new Error("AUTH_SECRET is required in production");
-    }
-    return new TextEncoder().encode("dev-only-insecure-secret-meals-planner");
-  }
-  return new TextEncoder().encode(secret);
-}
-
-export async function signSession(user: SessionUser): Promise<string> {
-  return new SignJWT({ name: user.name, email: user.email })
-    .setProtectedHeader({ alg: "HS256" })
-    .setSubject(String(user.id))
-    .setIssuedAt()
-    .setExpirationTime(`${SESSION_DAYS}d`)
-    .sign(getSecret());
-}
-
-export async function verifySession(token: string): Promise<SessionUser | null> {
-  try {
-    const { payload } = await jwtVerify(token, getSecret());
-    if (!payload.sub) return null;
-    return {
-      id: Number(payload.sub),
-      name: String(payload.name ?? ""),
-      email: String(payload.email ?? ""),
-    };
-  } catch {
-    return null;
-  }
-}
+export { getSecret, signSession, verifySession } from "./auth-token";
+import { signSession, verifySession } from "./auth-token";
 
 export async function startSession(user: SessionUser) {
   const store = await cookies();
@@ -65,7 +30,9 @@ export async function endSession() {
 
 export async function getCurrentUser(): Promise<SessionUser | null> {
   const token = (await cookies()).get(SESSION_COOKIE)?.value;
-  return token ? verifySession(token) : null;
+  if (!token) return null;
+  const claims = await verifySession(token);
+  return claims ? findSessionUser(await getDb(), claims) : null;
 }
 
 /** Use at the top of every authenticated page and server action. */

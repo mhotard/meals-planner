@@ -4,8 +4,10 @@ import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { getDb, schema } from "@/db";
-import { requireUser } from "@/server/auth";
-import { field } from "@/lib/form";
+import { endSession, requireUser } from "@/server/auth";
+import { memberName, normalizeEmail, passwordError } from "@/lib/auth-input";
+import { replacePassword } from "@/db/auth";
+import { redirect } from "next/navigation";
 
 export type FormResult = { error?: string; ok?: string };
 
@@ -14,10 +16,12 @@ export async function changePassword(
   formData: FormData,
 ): Promise<FormResult> {
   const me = await requireUser();
-  const current = String(formData.get("current") ?? "");
-  const next = String(formData.get("next") ?? "");
+  const current = formData.get("current");
+  const next = formData.get("next");
 
-  if (next.length < 8) return { error: "New password must be at least 8 characters." };
+  const invalid = passwordError(next);
+  if (invalid || typeof next !== "string") return { error: invalid ?? "Enter a password." };
+  if (typeof current !== "string" || new TextEncoder().encode(current).length > 72) return { error: "Current password is incorrect." };
 
   const db = await getDb();
   const [row] = await db
@@ -25,16 +29,15 @@ export async function changePassword(
     .from(schema.users)
     .where(eq(schema.users.id, me.id))
     .limit(1);
-  if (!row || !(await bcrypt.compare(current, row.passwordHash))) {
+  if (!row || row.sessionVersion !== me.sessionVersion || !(await bcrypt.compare(current, row.passwordHash))) {
     return { error: "Current password is incorrect." };
   }
 
-  await db
-    .update(schema.users)
-    .set({ passwordHash: await bcrypt.hash(next, 12) })
-    .where(eq(schema.users.id, me.id));
-
-  return { ok: "Password updated." };
+  if (!(await replacePassword(db, me.id, me.sessionVersion, await bcrypt.hash(next, 12)))) {
+    return { error: "Your session changed. Sign in again." };
+  }
+  await endSession();
+  redirect("/login");
 }
 
 export async function addMember(
@@ -42,12 +45,13 @@ export async function addMember(
   formData: FormData,
 ): Promise<FormResult> {
   await requireUser();
-  const name = field(formData, "name");
-  const email = field(formData, "email").toLowerCase();
-  const password = String(formData.get("password") ?? "");
+  const name = memberName(formData.get("name"));
+  const email = normalizeEmail(formData.get("email"));
+  const password = formData.get("password");
 
-  if (!name || !email) return { error: "Name and email are required." };
-  if (password.length < 8) return { error: "Password must be at least 8 characters." };
+  if (!name || !email) return { error: "Enter a name (up to 100 characters) and valid email." };
+  const invalid = passwordError(password);
+  if (invalid || typeof password !== "string") return { error: invalid ?? "Enter a password." };
 
   const db = await getDb();
   const [existing] = await db
@@ -57,11 +61,12 @@ export async function addMember(
     .limit(1);
   if (existing) return { error: "Someone already uses that email." };
 
-  await db.insert(schema.users).values({
+  const created = await db.insert(schema.users).values({
     name,
     email,
     passwordHash: await bcrypt.hash(password, 12),
-  });
+  }).onConflictDoNothing({ target: schema.users.email }).returning({ id: schema.users.id });
+  if (!created.length) return { error: "Someone already uses that email." };
 
   revalidatePath("/settings");
   return { ok: `${name} can now sign in.` };

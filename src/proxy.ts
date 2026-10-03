@@ -1,12 +1,12 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { SESSION_COOKIE, verifySession } from "@/server/auth";
+import { SESSION_COOKIE, verifySession } from "@/server/auth-token";
 
 /** Everything is private except the login page and the read-only share links. */
-const PUBLIC_PREFIXES = ["/login", "/share/"];
+const isPublic = (path: string) => path === "/login" || path.startsWith("/share/");
 
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  if (PUBLIC_PREFIXES.some((p) => pathname === p || pathname.startsWith(p))) {
+  if (isPublic(pathname)) {
     return NextResponse.next();
   }
 
@@ -15,7 +15,7 @@ export async function proxy(req: NextRequest) {
 
   const url = req.nextUrl.clone();
   url.pathname = "/login";
-  url.search = pathname === "/" ? "" : `?next=${encodeURIComponent(pathname)}`;
+  url.search = pathname === "/" ? "" : `?next=${encodeURIComponent(pathname + req.nextUrl.search)}`;
   return NextResponse.redirect(url);
 }
 

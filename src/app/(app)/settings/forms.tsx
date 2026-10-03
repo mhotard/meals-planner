@@ -24,10 +24,12 @@ export function PasswordForm() {
           type="password"
           required
           minLength={8}
+          maxLength={72}
           className="input"
         />
       </div>
       <FormMessage state={state} />
+      <p className="text-sm text-muted">Changing your password signs out all sessions. Sign in again with the new password.</p>
       <SubmitButton label="Change password" />
     </form>
   );
@@ -58,9 +60,10 @@ export function AddMemberForm() {
         <input
           id="member-password"
           name="password"
-          type="text"
+          type="password"
           required
           minLength={8}
+          maxLength={72}
           className="input"
           placeholder="They can change it after signing in"
         />

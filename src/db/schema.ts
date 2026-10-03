@@ -19,7 +19,15 @@ export const users = pgTable("users", {
   email: text("email").notNull().unique(),
   name: text("name").notNull(),
   passwordHash: text("password_hash").notNull(),
+  sessionVersion: integer("session_version").notNull().default(0),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+/** One durable account-keyed limiter; each attempt locks its row in a transaction. */
+export const loginAttempts = pgTable("login_attempts", {
+  accountKey: text("account_key").primaryKey(),
+  failures: integer("failures").notNull().default(0),
+  windowStartedAt: timestamp("window_started_at", { withTimezone: true }).notNull(),
 });
 
 /** Canonical pantry of ingredients, shared across all recipes. */
