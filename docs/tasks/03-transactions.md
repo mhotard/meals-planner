@@ -1,7 +1,9 @@
 # 03 — Make recipe saves atomic
 
-Status: queued. Owner: unassigned (persistence).
-Dependencies: accepted 02. Branch/worktree and baseline commit: unassigned.
+Status: in_progress. Owner: /root/auth (persistence assignment).
+Dependencies: accepted02. Branch: codex/03-transactions.
+Worktree: /private/tmp/meals-task03.
+Baseline: ff5eae305d33ddf5549335bfdbadb15b29d5c5e4 (accepted01/02).
 
 ## Goal and ownership
 
