@@ -168,3 +168,21 @@ evidence belongs to 05. Production HTTPS and OS print preview remain task 06.
   (32.9s), all added controls plus share-context database no-write digest.
 - Fresh-checkout `npm ci` and at least one full browser run still pending on the
   final integrated candidate; no earlier targeted run substitutes for 04.1/04.4.
+
+### Harness review before final candidate
+
+- Bounded each readiness fetch to two seconds inside the existing 90-second
+  deadline. Replaced every generated password `fill` with native input setter
+  and input/change events; value retention asserts a boolean, so failure output
+  cannot reveal the expected credential. Generated passwords, signing/action
+  keys and tokens are masked before use only when `GITHUB_ACTIONS=true`.
+- Actual-action transport failures now report a fresh generic action-name error,
+  omitting request headers, cookies, bodies and the original diagnostic cause.
+  CLI arguments/logs remain ephemeral and are removed with the test directory.
+- `npx playwright test tests/e2e/authentication.spec.ts`: passed 4/4 (1.7m) on
+  `02168bb` application sources plus these harness changes: redirects/login/logout
+  22.3s, Settings invalid-input/no-write and two-session revocation 32.9s,
+  durable throttling 26.2s, actual CLI reset/new login 19.1s. Same macOS/Node25,
+  Chromium desktop, disposable PGlite and Webpack environment as above.
+- `rg` audit found no generated-password fill/type or credential-valued
+  `toHaveValue` assertions remaining. Full suite still awaits integrated 03.

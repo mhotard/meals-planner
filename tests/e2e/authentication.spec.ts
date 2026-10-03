@@ -1,4 +1,4 @@
-import { test, expect, login } from "./fixture";
+import { test, expect, login, fillSecret } from "./fixture";
 import { callAction, form, actionResult } from "./actions";
 
 test("protected routes, redirect destinations, login and logout", async ({ page, harness }) => {
@@ -9,7 +9,7 @@ test("protected routes, redirect destinations, login and logout", async ({ page,
   for (const destination of ["https://example.invalid/", "//example.invalid/", "/\\example.invalid/", "javascript:alert(1)", "/%2fexample.invalid/", "/recipes%0aevil"]) {
     await page.goto(`${harness.url}/login?next=${encodeURIComponent(destination)}`);
     await page.getByLabel("Email", {exact: true}).fill(harness.email);
-    await page.getByLabel("Password", {exact: true}).fill(harness.password);
+    await fillSecret(page.getByLabel("Password", {exact: true}), harness.password);
     await page.getByRole("button", {name: "Sign in", exact: true}).click();
     await expect(page).toHaveURL(harness.url + "/");
     await page.getByTitle(new RegExp("click to sign out")).click();
@@ -46,8 +46,8 @@ test("Settings invalid values do not write; password changes revoke both session
     expect(await harness.snapshot()).toBe(before);
     await page.goto(harness.url + "/settings");
     const changed = harness.password + "new";
-    await page.getByLabel("Current password", {exact: true}).fill(harness.password);
-    await page.getByLabel("New password", {exact: true}).fill(changed);
+    await fillSecret(page.getByLabel("Current password", {exact: true}), harness.password);
+    await fillSecret(page.getByLabel("New password", {exact: true}), changed);
     await page.getByRole("button", {name: "Change password", exact: true}).click();
     await expect(page).toHaveURL(harness.url + "/login");
     const afterChange = await harness.snapshot();

@@ -31,10 +31,16 @@ export async function callAction(request: APIRequestContext, url: string, name: 
     : entry[1].filename.includes("/settings/") ? "/settings"
     : entry[1].filename.includes("/plans/") ? "/plans/2030-02-04"
     : "/login";
-  return request.post(`${url}${route}`, {
-    headers: {"Next-Action": entry[0], Origin: url, "Content-Type": `multipart/form-data; boundary=${boundary}`},
-    data: body, maxRedirects: 0,
-  });
+  try {
+    return await request.post(`${url}${route}`, {
+      headers: {"Next-Action": entry[0], Origin: url, "Content-Type": `multipart/form-data; boundary=${boundary}`},
+      data: body, maxRedirects: 0,
+    });
+  } catch {
+    // Request diagnostics can contain session cookies and encoded passwords.
+    // Preserve the failure without copying private headers/body into reports.
+    throw new Error(`Exported action ${name} request failed`);
+  }
 }
 
 /** Read only the root action promise, never unrelated page/error-boundary props. */

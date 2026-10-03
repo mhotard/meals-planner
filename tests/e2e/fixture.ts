@@ -1,4 +1,4 @@
-import { test as base, expect, type Page } from "@playwright/test";
+import { test as base, expect, type Page, type Locator } from "@playwright/test";
 import { spawn, type ChildProcess } from "node:child_process";
 import { randomBytes, createHash } from "node:crypto";
 import { mkdtemp, rm, open } from "node:fs/promises";
@@ -20,6 +20,27 @@ export type Harness = {
   token: (subject: number, expired?: boolean) => Promise<string>;
   resetPassword: () => Promise<string>;
 };
+
+function maskSecret(value: string) {
+  // GitHub interprets this command; local runs never print secret values.
+  if (process.env.GITHUB_ACTIONS === "true") console.info(`::add-mask::${value}`);
+}
+
+export async function fillSecret(locator: Locator, value: string) {
+  maskSecret(value);
+  // Playwright fill/type call logs include their argument on failure. Dispatch
+  // native input events without putting credentials in those call logs.
+  const retained = await locator.evaluate((element, secret) => {
+    if (!(element instanceof HTMLInputElement)) return false;
+    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")?.set;
+    if (!setter) return false;
+    setter.call(element, secret);
+    element.dispatchEvent(new Event("input", { bubbles: true }));
+    element.dispatchEvent(new Event("change", { bubbles: true }));
+    return element.value === secret;
+  }, value);
+  expect(retained, "Secret input retained the supplied value").toBe(true);
+}
 
 async function availablePort() {
   const socket = createServer();
@@ -51,6 +72,7 @@ export const test = base.extend<{ harness: Harness }>({
       NEXT_SERVER_ACTIONS_ENCRYPTION_KEY: randomBytes(32).toString("base64"),
       NEXT_TELEMETRY_DISABLED: "1",
     };
+    for (const secret of [password, env.AUTH_SECRET, env.NEXT_SERVER_ACTIONS_ENCRYPTION_KEY]) maskSecret(secret);
     let server: ChildProcess | undefined;
     let log: Awaited<ReturnType<typeof open>> | undefined;
     let port: number;
@@ -77,7 +99,7 @@ export const test = base.extend<{ harness: Harness }>({
       while (Date.now() < deadline) {
         if (server.exitCode !== null || server.signalCode !== null) throw new Error("Isolated Next server exited before readiness");
         try {
-          const response = await fetch(`${url}/login`);
+          const response = await fetch(`${url}/login`, { signal: AbortSignal.timeout(2_000) });
           if (response.ok) return;
         } catch { /* Listener not ready yet. */ }
         await new Promise((resolve) => setTimeout(resolve, 250));
@@ -124,6 +146,7 @@ export const test = base.extend<{ harness: Harness }>({
         await disconnectPages();
         await stop();
         const replacement = randomBytes(24).toString("base64url");
+        maskSecret(replacement);
         try {
           // Run the actual account CLI, with the same explicit isolated env.
           // Credentials stay in memory and are never printed or stored as files.
@@ -137,11 +160,13 @@ export const test = base.extend<{ harness: Harness }>({
         return replacement;
       }, token: async (subject, expired = false) => {
         const now = Math.floor(Date.now() / 1000);
-        return new SignJWT({name: "Deleted QA", email: "deleted@example.invalid", version: 0})
+        const token = await new SignJWT({name: "Deleted QA", email: "deleted@example.invalid", version: 0})
           .setProtectedHeader({alg: "HS256"}).setSubject(String(subject))
           .setIssuer("meal-planner").setAudience("meal-planner-session")
           .setIssuedAt(expired ? now - 3600 : now).setExpirationTime(expired ? now - 60 : now + 3600)
           .sign(new TextEncoder().encode(env.AUTH_SECRET));
+        maskSecret(token);
+        return token;
       }, snapshot: async () => {
         // Disconnect dev HMR before restart so old pages cannot navigate while
         // the test is refetching fresh action references or signing in again.
@@ -186,7 +211,7 @@ export { expect };
 export async function login(page: Page, harness: Harness, target = "/recipes") {
   await page.goto(`${harness.url}/login?next=${encodeURIComponent(target)}`);
   await page.getByLabel("Email", { exact: true }).fill(harness.email);
-  await page.getByLabel("Password", { exact: true }).fill(harness.password);
+  await fillSecret(page.getByLabel("Password", { exact: true }), harness.password);
   await page.getByRole("button", { name: "Sign in", exact: true }).click();
   await expect(page).toHaveURL(harness.url + target);
 }

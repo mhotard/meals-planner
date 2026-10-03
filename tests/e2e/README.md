@@ -21,6 +21,10 @@ not import the CLI environment loader. The harness has no remote target option
 and never reuses another server. One worker serializes browser tests. Do not run
 two suite commands in one checkout: Next's build-directory lock refuses this.
 Cleanup stops the server and deletes the directory even after assertion errors.
+Each readiness request has a two-second timeout within the 90-second deadline.
+Password inputs use native input events to avoid secret-bearing fill/type logs;
+retention checks report a boolean only. Generated secrets are masked before use
+when `GITHUB_ACTIONS=true`; local runs emit no masking command or secret value.
 
 The snapshot helper stops Next before opening PGlite, closes the connection,
 restarts Next, and compares a digest of household tables and account fields.
