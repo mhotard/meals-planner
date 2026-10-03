@@ -22,7 +22,7 @@ root so environment files and migration paths resolve correctly.
 
 | Variable | Purpose |
 | --- | --- |
-| `AUTH_SECRET` | Session signing secret; required in production. Generate with `openssl rand -base64 32`. Development has an insecure local fallback. |
+| `AUTH_SECRET` | Session signing secret; required in production, at least 32 UTF-8 bytes of securely generated randomness. Generate with `openssl rand -base64 32`. Development has an insecure local fallback. |
 | `DATABASE_URL` | Hosted Postgres connection string. Blank/unset selects local PGlite. |
 | `PGLITE_DIR` | Optional local database directory; defaults to `.pglite`. Ignored when `DATABASE_URL` is set. |
 
@@ -128,3 +128,14 @@ criteria and exact verification results, not just a list of edited files.
 For the hosted-release plan, start with [the roadmap](roadmap.md), then use
 [coordination](coordination.md) and the [task board](tasks/README.md). Keep shared
 files under one owner at a time and verify the integrated candidate at each gate.
+
+## Login and account changes
+
+Member/CLI setup use a normalized email and a password of at least eight characters
+and at most 72 UTF-8 bytes (bcrypt limit). Passwords are not trimmed.
+Changing a password or resetting it through the CLI revokes all prior sessions.
+Existing cookies from before migration0001 require a fresh login.
+Ten failed password checks lock a normalized email for the rest of a fixed
+fifteen-minute window; the next eligible attempt resets the window.
+Hashed limiter rows persist, including missing accounts; hosted operations must
+monitor growth and can clean expired windows without deleting active ones.

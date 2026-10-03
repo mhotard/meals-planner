@@ -75,3 +75,19 @@ exit 0, 13/13 tests including production fail-closed cases (macOS Node25.5.0).
 Candidate SHA/build evidence will be recorded after integration.
 No hosted resources, migration, HTTPS smoke, backup or restore performed.
 External steps await G1 plus account/project, region, budget, data and operator inputs.
+
+October3 preparation: src/instrumentation.ts adds Node production startup preflight
+for hosted DATABASE_URL and the auth signing secret. It skips compilation phase,
+opens no connection and performs no migrations. Missing-config process failure
+must be verified on the integrated candidate before marking 06.1 passed.
+
+Production-preflight preparation verified October3 on integrated app source:
+network-enabled npm run build -- --webpack exit0 (Next16.3.8).
+Initial smoke incorrectly expected the process to exit1; it timed out and was
+terminated, so that test failed. Diagnostics showed Next keeps its listener but
+returns HTTP500 after instrumentation rejects preparation. Corrected repeatable
+npm run test:production-config exit0: missing DATABASE_URL, missing AUTH_SECRET
+and short AUTH_SECRET all returned HTTP500 with the expected preflight error,
+and no local database directory was created. All cases used synthetic config
+and a nonresolving fake URL; no hosted or household database was opened.
+This local preparation does not satisfy hosted06.1/G2.

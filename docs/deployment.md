@@ -21,6 +21,10 @@ Environment changes require a new deployment and scope verification:
 Production database connections reject an absent/blank DATABASE_URL. Local
 PGLITE_DIR is only for development/test. AUTH_SECRET must be present in production.
 Do not weaken secure cookies to test authentication over local HTTP.
+Node production startup preflight validates config without opening a database.
+Next may retain its listener after failure; health checks must require a successful
+HTTP response, not merely an open port or the CLI Ready line. Run
+`npm run test:production-config` after building to verify rejection paths.
 
 ## Candidate and migration
 

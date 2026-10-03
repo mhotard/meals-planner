@@ -24,8 +24,8 @@ git ls-remote against the official action repositories on October 2, 2026:
 [checkout](https://github.com/actions/checkout),
 [setup-node](https://github.com/actions/setup-node),
 [upload-artifact](https://github.com/actions/upload-artifact).
-Pinned SHAs are in the workflow. Failure evidence upload awaits the browser
-harness's safe artifact contract; credentials/session traces must not be uploaded.
+Pinned SHAs are in the workflow. Only synthetic PNG failure screenshots are retained for three days;
+credentials/session traces and private fixture logs are never uploaded.
 
 GitHub network-enabled repository read succeeded. Branch protection API returned
 403 Resource not accessible by personal access token. Required-check enforcement
@@ -66,3 +66,5 @@ After compatible transitive fixes, npm run check completed exit0 (13/13 tests,
 lint/fresh typegen/TypeScript) in the coordinator checkout. October3 resume:
 all three workers retained their isolated drafts after usage-limit interruption;
 no work discarded and no accepted status advanced.
+
+Production config smoke (local preparation): missing database, absent/short signing secret returnHTTP500; no embeddedDB created. Initial process-exit assumption failed and was corrected; see task06. HTTPS/hosted evidence pending.

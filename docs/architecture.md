@@ -111,3 +111,13 @@ The schema is authoritative in `src/db/schema.ts`. `drizzle.config.ts` points to
 it and generates migrations into `drizzle/`; runtime migrations apply that
 history through the selected driver. Set `DATABASE_URL` to use hosted Postgres;
 otherwise PGlite stores local Postgres data in `.pglite/` or `PGLITE_DIR` in development/test. Production connections require `DATABASE_URL` and fail instead of falling back to embedded storage.
+
+## Authentication release policy
+
+Sessions contain a bounded subject, issuer/audience, expiry and session version.
+Private pages/actions recheck user existence/version in the database after the
+proxy signature check. Password changes and CLI resets increment the version;
+prior cookies are revoked. Pre-release cookies require a fresh login.
+Failed login attempts use a durable transactional account-key limiter:
+ten failures in fifteen minutes. Missing-account/wrong-password/lockout responses
+match. Hashed limiter rows persist until operator expiry cleanup.
