@@ -152,3 +152,19 @@ fixes for custom unit inherited properties still awaited at this point.
 Pending: full suite twice and check/build on integrated task 03, then coordinator
 review. Browser environment remains Node v25.5.0/macOS arm64; Node 22/Linux CI
 evidence belongs to 05. Production HTTPS and OS print preview remain task 06.
+
+### Coverage review while waiting for 03
+
+- Added bounded checks for Uncheck all/persistence, pantry have-it returning the
+  item to pantry prompts/persistence, authorized extra removal/persistence, and
+  an actual valid mutation attempted from the context viewing a public share.
+  The share attempt must redirect to login, remain absent on reload, and leave
+  the domain/account snapshot digest unchanged. Private refs are recompiled
+  after snapshot server restart; the signed-out context stays separate.
+- `npx playwright test tests/e2e/household.spec.ts --grep '1280px'`: passed 1 test
+  (27.1s), updated controls and denied share-context behavior. The database digest
+  assertion was added afterward and is included in the phone run below.
+- `npx playwright test tests/e2e/household.spec.ts --grep '390px'`: passed 1 test
+  (32.9s), all added controls plus share-context database no-write digest.
+- Fresh-checkout `npm ci` and at least one full browser run still pending on the
+  final integrated candidate; no earlier targeted run substitutes for 04.1/04.4.

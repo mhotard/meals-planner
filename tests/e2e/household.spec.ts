@@ -1,5 +1,6 @@
 import { test, expect, login } from "./fixture";
 import type { Page } from "@playwright/test";
+import { callAction, form } from "./actions";
 
 const week = "2030-01-07";
 
@@ -82,6 +83,23 @@ for (const viewport of [{ width: 1280, height: 900 }, { width: 390, height: 844 
     await page.emulateMedia({media: "screen"});
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 
+    await page.getByRole("button", {name:"Uncheck all",exact:true}).click();
+    await expect(page.getByRole("progressbar")).toHaveAttribute("aria-valuenow","0");
+    await page.reload();
+    await expect(chicken).not.toBeChecked();
+    await page.getByRole("checkbox", {name:"Got Rice QA"}).locator("../..").getByRole("button", {name:"have it",exact:true}).click();
+    await expect(page.getByRole("checkbox", {name:"Got Rice QA"})).toHaveCount(0);
+    await page.reload();
+    await expect(page.getByRole("button", {name:/Rice QA/})).toBeVisible();
+    const extras = page.locator("section").filter({has:page.getByRole("heading",{name:"Add something else",exact:true})});
+    await extras.getByRole("button", {name:"remove",exact:true}).click();
+    await expect(page.getByRole("checkbox", {name:"Got Candles QA"})).toHaveCount(0);
+    await page.reload();
+    await expect(page.getByRole("checkbox", {name:"Got Candles QA"})).toHaveCount(0);
+    const beforeShareWrite = await harness.snapshot();
+    // Restarted Next needs current private action references compiled again.
+    await page.goto(`${harness.url}/plans/${week}/shopping`);
+
     const signedOut = await browser.newContext({viewport});
     try {
       const share = await signedOut.newPage();
@@ -92,6 +110,11 @@ for (const viewport of [{ width: 1280, height: 900 }, { width: 390, height: 844 
       await expect(share.getByRole("button", {name: /skip|restore|Add a meal|Uncheck all/})).toHaveCount(0);
       await expect(share.locator("form")).toHaveCount(0);
       expect(await share.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+      const denied = await callAction(signedOut.request,harness.url,"addExtraItem",[week,form({label:"Share write QA",quantity:"1",unit:"cup",category:"other"})]);
+      expect(denied.headers()["x-action-redirect"] ?? denied.headers().location).toContain("/login");
+      await share.reload();
+      await expect(share.getByText("Share write QA",{exact:true})).toHaveCount(0);
+      expect(await harness.snapshot()).toBe(beforeShareWrite);
       await share.goto(`${harness.url}/share/invalid-qa-token`);
       await expect(share.getByRole("heading", {name: "404", exact: true})).toBeVisible();
     } finally { await signedOut.close(); }

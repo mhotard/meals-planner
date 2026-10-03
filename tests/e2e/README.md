@@ -45,7 +45,9 @@ error-boundary props cannot satisfy the assertion.
 Coverage includes recipe CRUD/notes/cook history/search; Monday plan creation;
 recipe and keyboard custom entries; recipe deduplication; mixed compatible units;
 distinct count units; weekly minima; pantry restore; checked/skipped/restored
-state and extras after reload; signed-out read-only shares and invalid tokens;
+state, uncheck-all, pantry return-to-prompt, and extra addition/removal after
+reload; signed-out read-only shares, actual denied share-context mutation with
+unchanged database digest, and invalid tokens;
 clipboard text/Trello exports; desktop 1280px and phone 390px widths; print CSS;
 crafted invalid writes and unauthorized action requests; Settings input rejection
 and session revocation; durable login throttling with generic errors; visible form
