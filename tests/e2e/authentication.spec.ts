@@ -6,7 +6,7 @@ test("protected routes, redirect destinations, login and logout", async ({ page,
     await page.goto(harness.url + path);
     await expect(page).toHaveURL(/\/login(?:\?|$)/);
   }
-  for (const destination of ["https://example.invalid/", "//example.invalid/", "/\\example.invalid/", "javascript:alert(1)", "/login?next=/recipes", "/share/not-a-private-page"]) {
+  for (const destination of ["https://example.invalid/", "//example.invalid/", "/\\example.invalid/", "javascript:alert(1)", "/%2fexample.invalid/", "/recipes%0aevil"]) {
     await page.goto(`${harness.url}/login?next=${encodeURIComponent(destination)}`);
     await page.getByLabel("Email", {exact: true}).fill(harness.email);
     await page.getByLabel("Password", {exact: true}).fill(harness.password);

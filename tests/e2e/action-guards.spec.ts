@@ -4,6 +4,26 @@ import { callAction, form } from "./actions";
 const validRecipe = {name: "Crafted QA", servings: "4", prepMinutes: "20", sourceUrl: "https://example.invalid/qa", "ing-name": "New ingredient QA", "ing-quantity": "1 1/2", "ing-unit": "cup", "ing-note": ""};
 const week = "2030-02-04";
 
+test("valid exported actions preserve custom count units and stable shopping state", async ({ page, harness }) => {
+  await login(page, harness, "/recipes/new");
+  const created = await callAction(page.request, harness.url, "createRecipe", [{}, form({...validRecipe, name: "Custom unit QA", "ing-name": "Custom item QA", "ing-quantity": "2", "ing-unit": "constructor"})]);
+  const redirect = created.headers()["x-action-redirect"];
+  expect(redirect).toMatch(/\/recipes\/\d+/);
+  const id = Number(redirect.match(/\/recipes\/(\d+)/)![1]);
+  await page.goto(`${harness.url}/plans/${week}`);
+  const added = await callAction(page.request, harness.url, "addRecipeToDay", [week, 1, id]);
+  expect(added.status()).toBe(200);
+  expect(await added.text()).not.toContain('"error"');
+  await page.goto(`${harness.url}/plans/${week}/shopping`);
+  const checkbox = page.getByRole("checkbox", {name: "Got Custom item QA"});
+  await expect(checkbox.locator("..")).toContainText("2 constructor");
+  await expect(page.getByText(/NaN|undefined/)).toHaveCount(0);
+  await checkbox.check();
+  await expect(page.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "1");
+  await page.reload();
+  await expect(checkbox).toBeChecked();
+});
+
 test("crafted invalid exported actions reject without any database writes", async ({ page, harness }) => {
   await login(page, harness);
   const before = await harness.snapshot();
