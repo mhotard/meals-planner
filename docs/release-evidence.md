@@ -40,3 +40,29 @@ operator acceptance has been verified. Account/project owner, region, budget,
 initial household data choice, recovery targets and operator have been requested.
 Do not interpret a proposed runbook as operational evidence. Optional 08–11
 remain proposed.
+
+## Dependency review (candidate preparation)
+
+Updated next, @next/env and eslint-config-next together from 16.3.0 to 16.3.8;
+sharp now resolves 0.35.5. npm audit --omit=dev returned exit 0 / zero
+production advisories after the patch. Compatible npm audit fix refreshed
+transitives without force. Full audit still reports nine development-only
+advisories: braces/micromatch/fast-glob in ESLint (hostile glob recursion) and
+esbuild in Drizzle's deprecated loader (development-server cross-origin reads).
+These tools do not serve production requests; CI evaluates trusted committed
+configuration, and Drizzle Studio/esbuild development servers are not used.
+No forced downgrade to Next14/Drizzle0.18 was applied. Review again at candidate
+acceptance; do not claim the full audit is clean.
+[Next advisory](https://github.com/advisories/GHSA-vcvr-r3jv-pc5j),
+[sharp advisory](https://github.com/advisories/GHSA-rgj7-g3m4-5g8c).
+
+Patched default npm run build: sandbox Google Fonts failure, then network-enabled
+retry failed Turbopack process/port permission (EPERM). This is unavailable local
+default-compiler evidence, not a pass. Default compiler remains enabled on the
+normal CI runner for verification. Network-enabled npm run build -- --webpack
+passed on Next16.3.8. CI/G1 remain pending integration.
+
+After compatible transitive fixes, npm run check completed exit0 (13/13 tests,
+lint/fresh typegen/TypeScript) in the coordinator checkout. October3 resume:
+all three workers retained their isolated drafts after usage-limit interruption;
+no work discarded and no accepted status advanced.

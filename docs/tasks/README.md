@@ -39,7 +39,7 @@ Historical passes are not acceptance of a new implementation.
 
 ## Pending execution inputs
 
-- Accepted baseline commit and assignment mechanism.
+- Baseline and assignments established; see G0 and active grants.
 - Hosting/database account owner, project, region, and budget.
 - Production starts fresh or migrates existing household data.
 - Backup/recovery targets and operator for the hosted release.
@@ -61,5 +61,5 @@ credentials, session storage, real exports, and household data out of task notes
 
 01 owns auth/login/settings, auth helpers/tests, seed-user, schema and drizzle.
 02 owns form/domain validation, recipe/pantry/plan actions and related UI/tests; no schema/root changes.
-04 owns tests/e2e, playwright config, browser fixture scripts, package/lockfile and ignore rules temporarily.
+04 owns tests/e2e, playwright config, browser fixture scripts and ignore rules. Package/lockfile grant released after bc55ad0; coordinator owns dependency patches.
 Coordinator owns board/roadmap/CI and integration. Worktrees are based on 868d226, never remote main.

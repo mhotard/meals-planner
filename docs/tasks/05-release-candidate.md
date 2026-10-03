@@ -46,3 +46,16 @@ Feature fixes return to their owners.
 Results: not run. Return candidate commit, CI/PR links, check enforcement,
 migration order, nonblocking defects, and deployment handoff. No hosting is
 claimed here. G1 acceptance: pending.
+
+## Coordinator preparation — October 3, 2026
+
+Workflow drafted with official action SHAs, Node22, read-only repository scope,
+synthetic signing secret and no production database credentials. Default compiler
+scheduled on Ubuntu CI; local Turbopack hit an environment process/port EPERM.
+Webpack production compilation on Next16.3.8 passed with network access.
+Dependency patch: Next/@next/env/eslint-config-next16.3.8 and sharp0.35.5.
+Production audit exit0 / zero advisories. Non-forced compatible development
+transitive fixes applied; remaining nine development-only advisories are assessed
+in docs/release-evidence.md. npm run check after changes: exit0, 13/13 tests.
+No candidate accepted yet: worker integration, complete browser coverage,
+positive and negative CI runs remain required.
