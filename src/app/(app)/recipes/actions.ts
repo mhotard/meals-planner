@@ -7,51 +7,16 @@ import { getDb, schema } from "@/db";
 import { requireUser } from "@/server/auth";
 import { field, integerValue, mutationResult, optionalField, positiveId, rejectInput, validate } from "@/lib/form";
 import { dateValue, validateRecipeInput } from "@/lib/validation";
-import { findOrCreateIngredient } from "@/db/ingredients";
+import { saveValidatedRecipe } from "@/db/recipes";
+import type { RecipeSaveTarget } from "@/db/recipes";
 
 
 export type RecipeFormState = { error?: string };
 
-async function writeRecipe(formData: FormData, recipeId?: number) {
+async function writeRecipe(formData: FormData, target: RecipeSaveTarget) {
   const input = validateRecipeInput(formData);
   if (!input.ok) return { error: input.error };
-  if (recipeId !== undefined) {
-    try { positiveId(recipeId, "Recipe"); } catch { return { error: "Recipe must be a positive ID." }; }
-  }
-  const { ingredients: rows, ...recipe } = input.value;
-  const values = { ...recipe, updatedAt: new Date() };
-  const db = await getDb();
-  if (recipeId !== undefined) {
-    const [existing] = await db.select({ id: schema.recipes.id }).from(schema.recipes).where(eq(schema.recipes.id, recipeId));
-    if (!existing) return { error: "Recipe no longer exists." };
-  }
-
-  let id = recipeId;
-  if (id) {
-    await db.update(schema.recipes).set(values).where(eq(schema.recipes.id, id));
-    await db
-      .delete(schema.recipeIngredients)
-      .where(eq(schema.recipeIngredients.recipeId, id));
-  } else {
-    const [created] = await db
-      .insert(schema.recipes)
-      .values(values)
-      .returning({ id: schema.recipes.id });
-    id = created.id;
-  }
-
-  for (const [i, row] of rows.entries()) {
-    await db.insert(schema.recipeIngredients).values({
-      recipeId: id,
-      ingredientId: await findOrCreateIngredient(db, row.name),
-      quantity: row.quantity,
-      unit: row.unit,
-      note: row.note,
-      sortOrder: i,
-    });
-  }
-
-  return { id };
+  return saveValidatedRecipe(await getDb(), input.value, target);
 }
 
 export async function createRecipe(
@@ -59,7 +24,7 @@ export async function createRecipe(
   formData: FormData,
 ): Promise<RecipeFormState> {
   await requireUser();
-  const result = await writeRecipe(formData);
+  const result = await writeRecipe(formData, { kind: "create" });
   if ("error" in result) return result;
 
   revalidatePath("/recipes");
@@ -74,7 +39,7 @@ export async function updateRecipe(
   await requireUser();
   const id = validate(() => positiveId(recipeId, "Recipe"));
   if (!id.ok) return { error: id.error };
-  const result = await writeRecipe(formData, id.value);
+  const result = await writeRecipe(formData, { kind: "update", recipeId: id.value });
   if ("error" in result) return result;
 
   revalidatePath("/recipes");
