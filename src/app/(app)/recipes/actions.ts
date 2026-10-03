@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { and, eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { requireUser } from "@/server/auth";
-import { field, integerValue, mutationResult, optionalField, positiveId, rejectInput } from "@/lib/form";
+import { field, integerValue, mutationResult, optionalField, positiveId, rejectInput, validate } from "@/lib/form";
 import { dateValue, validateRecipeInput } from "@/lib/validation";
 import { findOrCreateIngredient } from "@/db/ingredients";
 
@@ -72,7 +72,9 @@ export async function updateRecipe(
   formData: FormData,
 ): Promise<RecipeFormState> {
   await requireUser();
-  const result = await writeRecipe(formData, recipeId);
+  const id = validate(() => positiveId(recipeId, "Recipe"));
+  if (!id.ok) return { error: id.error };
+  const result = await writeRecipe(formData, id.value);
   if ("error" in result) return result;
 
   revalidatePath("/recipes");
