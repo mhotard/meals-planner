@@ -14,8 +14,8 @@ Only the coordinator changes this board; workers update their own packets.
 | 01 | [Authentication](01-authentication.md) | accepted | auth / codex/01-authentication | 00 | 4aecd2a; 27 actions × four auth contexts no writes; Settings/CLI revocation and limiter pass |
 | 02 | [Validation](02-validation.md) | accepted | validation / codex/02-validation | 00 | 4aecd2a; 37 crafted no-write cases, visible errors/corrections, custom-unit persistence pass |
 | 03 | [Transactions](03-transactions.md) | accepted | auth → persistence / codex/03-transactions | 02 | b9845c8;31checks, real rollback/CLI/build and actual recipe flow pass |
-| 04 | [Browser tests](04-browser-tests.md) | in_progress | browser / codex/04-browser-tests | Scaffold: 00; acceptance: 01–03 | Baseline 868d226; /private/tmp/meals-task04 |
-| 05 | [Release candidate / CI](05-release-candidate.md) | queued | Unassigned | 01–04 | Not run |
+| 04 | [Browser tests](04-browser-tests.md) | accepted | browser / codex/04-browser-tests | Scaffold: 00; acceptance: 01–03 | e6249da cleancheckout;31checks/build;14/14 twice; isolated cleanup |
+| 05 | [Release candidate / CI](05-release-candidate.md) | in_progress | Coordinator / codex/release-baseline | 01–04 | Local01–04 accepted; remotepositive/negativeCI next |
 | 06 | [Staging / recovery rehearsal](06-staging.md) | queued | Unassigned | 05/G1 | Not run |
 | 07 | [Production](07-production.md) | queued | Unassigned | 06/G2 | Not run |
 | 08 | [Recipe import](08-recipe-import.md) | proposed | Unassigned | 07/G3 and selection | Not run |
@@ -61,7 +61,8 @@ credentials, session storage, real exports, and household data out of task notes
 
 01 and02 grants are released after acceptance; future fixes are assigned explicitly.
 03 grant released after acceptance; coordinator assigns any follow-up source fix.
-04 owns tests/e2e, playwright config, browser fixture scripts and ignore rules. Package/lockfile grant released after bc55ad0; coordinator owns dependency patches.
+04 grant released after acceptance; coordinator owns root/CI configuration and
+assigns any test follow-up. Package/lockfile grant previously released afterbc55ad0.
 Coordinator owns board/roadmap/CI and integration. Initial worktrees were based on
 868d226;03 starts from accepted integratedff5eae3, never remote main.
 
@@ -78,3 +79,8 @@ grant. Request any necessary ownership expansion before edits. 02 grant released
 October3 /root accepted03 on b9845c8 after independent review,31checks,
 Webpack production build, fail-closed smoke and actual recipe create/edit/reload.
 Next:04fullsuite twice on samecandidate pluscleancheckout; then05remoteCI.
+
+October3 /root accepted04 after freshcheckout e6249da reproducibility and14/14
+browser tests twice with no retries. Task05 claimed bycoordinator; nextauthorized
+actions: publishreleasebranch/draftPR and isolatednegativeCI branch. G1 remains
+pending exact-SHA positiveCI, intentionalfailure evidence andcandidate review.

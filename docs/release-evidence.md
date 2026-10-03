@@ -94,3 +94,9 @@ DATABASE_URL= PGLITE_DIR=/private/tmp/meals-release-build npm run build -- --web
 exit0, npm run test:production-config exit0, and actual recipe flow1/1passed.
 Independent persistence review clean; exact evidence/driver limits in task03.
 Task04 final stability/freshcheckout and task05exact-SHA CI remain pending.
+
+Task04 accepted: freshcheckout e6249da reproduces npmci,31checks, Webpackbuild
+and full14/14 Chromium suite twice (5.5m/5.4m), no retries, clean source and
+zero leftoverfixtureDBs. Source/test/config remains identical on integration
+branch; documentation updates do not replace the exact testedSHA evidence.
+Task05 nowinprogress; remote Node22/defaultcompiler andnegativeCI pending.

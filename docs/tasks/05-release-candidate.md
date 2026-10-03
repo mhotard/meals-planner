@@ -1,7 +1,9 @@
 # 05 — Integrate CI and accept a release candidate
 
-Status: queued. Owner: unassigned (coordinator/integrator).
-Dependencies: accepted 01–04. Branch/worktree and candidate commit: unassigned.
+Status: in_progress. Owner: /root (coordinator/integrator).
+Dependencies: accepted01–04. Branch: codex/release-baseline; coordinator checkout.
+Local verified source/test/config: e6249da0c6bcecfb1edaf7efae4809f9abf0710f.
+Remote candidate SHA andCI evidence pending initialpush.
 
 ## Goal and ownership
 

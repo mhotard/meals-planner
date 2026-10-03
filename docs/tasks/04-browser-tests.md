@@ -1,6 +1,6 @@
 # 04 — Automate household browser regressions
 
-Status: in_progress. Owner: `/root/browser` (browser QA).
+Status: accepted. Owner: `/root/browser` (browser QA).
 Dependencies: scaffold after accepted 00; final acceptance after accepted 01–03.
 Branch/worktree: `codex/04-browser-tests`, `/private/tmp/meals-task04`.
 Baseline commit: `868d22614355dac71ee3a72dd63cda51cdfd1e30` (accepted G0).
@@ -47,8 +47,8 @@ from feature owners; CI belongs to 05.
 
 ## Handoff and acceptance
 
-Coordinator acceptance: pending. Implementation and integrated verification
-are complete; the coordinator owns final review and acceptance.
+Coordinator acceptance: accepted October3 by/root after integration review,
+clean-checkout verification and both complete stability runs on e6249da.
 
 - Dependency commit: `bc55ad0f08778e3c24567261c8b9cc0b49ce9a11`.
   Package/lockfile grant released back to coordinator; coordinator owns the
@@ -242,3 +242,10 @@ Remaining checks: coordinator review/acceptance; Node 22/Linux CI belongs to 05;
 actual HTTPS production mode and secure-cookie evidence belongs to 06. OS print
 preview, Firefox and WebKit are unavailable in this initial Chromium suite and
 have not been reported as passed. No browser-suite defect remains open locally.
+
+Coordinator accepts04.1–04.4 on e6249da0c6bcecfb1edaf7efae4809f9abf0710f.
+Evidence b9b99fe integrated asf7e6535. Subsequent coordinator changes are docs
+only: git diff e6249da -- src tests package.json package-lock.json
+playwright.config.ts .github/workflows/release-checks.yml returned empty.
+No local release-blocking defect remains; declared coverage limits above remain.
+Task05 owns actual Node22/Ubuntu/default compiler and positive/negativeCI evidence.
