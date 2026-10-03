@@ -22,6 +22,24 @@ IDs/sequences, and fresh-login/private-page/shopping/share behavior through a
 restored HTTPS app. Compare elapsed recovery time to the agreed target.
 A dump's existence does not prove a recoverable backup.
 
+### Proposed Neon schedule (unconfigured)
+
+Official [backup/restore instructions](https://github.com/neondatabase/website/blob/main/content/docs/guides/backup-restore.md)
+(checked October3) support daily scheduled snapshots on paid plans and restores
+into a new branch. Free has one manual snapshot and no automated schedule.
+Snapshot storage is listed at $0.09/GB-month; first scheduled snapshot is full,
+subsequent snapshots are incremental. Confirm actual account capabilities/cost.
+
+After budget and operator agreement, configure a daily23:00UTC schedule on the
+named production root branch, with eight days retention (691200seconds) to leave
+margin around the seven retained daily-point target. This is proposed timing;
+record the actual agreed setting, branch/project IDs and schedule readback.
+Verify a newly completed backup and available snapshot IDs, not only schedule
+creation. Do not imply seven historical daily points exist on day one.
+Rehearse a multi-step restore into a new staging branch/database, compare data
+and migration state, and verify the restored HTTPS app before any traffic switch.
+No restore should replace the source during this rehearsal.
+
 ## Application rollback
 
 Keep the previous known-good deployment ID and SHA. Rehearse switching staging

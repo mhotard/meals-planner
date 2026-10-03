@@ -11,6 +11,30 @@ Use a provider subdomain initially unless a domain is selected. Current account
 access, Next 16.3 compatibility, pricing and retention must be checked at execution.
 Vercel/Neon remain candidates, not configured accounts.
 
+### Provider proposal checked October 3, 2026
+
+Vercel Hobby covers personal, noncommercial projects; a family-only planner
+appears to fit that use, subject to the owner's account choice. Its usage can
+pause the app when limits are exceeded, so verify account limits and alerts.
+[Hobby plan](https://vercel.com/docs/plans/hobby).
+[Next.js hosting support](https://vercel.com/docs/frameworks/full-stack/nextjs)
+documents App Router/server rendering support, but actual candidate deployment
+and production-cookie tests remain required.
+
+Neon Free currently includes100 CU-hours/project, 1GB/project storage and six
+hours of restore history. Launch is usage-priced with no monthly minimum:
+$0.106/CU-hour, $0.35/GB-month database storage, $0.20/GB-month restore history;
+up to seven days of history and paid-plan scheduled snapshots are available.
+[Current official plan source](https://github.com/neondatabase/website/blob/main/content/docs/introduction/plans.md)
+(updated October1). This is a proposal, not a budget approval or bill estimate.
+
+Prefer separate Vercel projects and separate Neon projects for staging/production.
+Proposal: Free staging for driver/HTTPS checks; production Launch with daily
+scheduled snapshots if the owner permits paid usage. If the restore rehearsal
+uses scheduled snapshots, staging also needs an approved paid plan temporarily.
+Free production would require a separate, approved daily backup/storage route.
+No provider resources or paid upgrades have been created.
+
 Use separate staging and production projects/databases and signing secrets.
 Preview branches must use staging or a separate disposable database, never
 production. Store DATABASE_URL and AUTH_SECRET in scoped provider secret settings;

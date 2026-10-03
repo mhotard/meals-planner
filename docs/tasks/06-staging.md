@@ -91,3 +91,10 @@ and short AUTH_SECRET all returned HTTP500 with the expected preflight error,
 and no local database directory was created. All cases used synthetic config
 and a nonresolving fake URL; no hosted or household database was opened.
 This local preparation does not satisfy hosted06.1/G2.
+
+October3 provider research: current official Neon plans (updatedOctober1) show
+Free six-hour restore history; paid Launch permits seven days and scheduled
+snapshots. Proposed environments and priced units are in docs/deployment.md;
+draft daily snapshot/isolated multi-step restore procedure in docs/operations.md.
+No account choice, monthly budget, operator, data decision, resource creation,
+paid upgrade, hosted driver check or HTTPS staging pass is claimed.
