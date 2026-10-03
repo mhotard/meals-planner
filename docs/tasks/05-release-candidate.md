@@ -59,3 +59,14 @@ transitive fixes applied; remaining nine development-only advisories are assesse
 in docs/release-evidence.md. npm run check after changes: exit0, 13/13 tests.
 No candidate accepted yet: worker integration, complete browser coverage,
 positive and negative CI runs remain required.
+
+October3 migration inventory reviewed on `7e80572`: journal version7/PostgreSQL,
+ordered idx0 `0000_init` then idx1 `0001_natural_matthew_murdock`; both SQL files
+and snapshots exist. `git diff 868d226 -- drizzle/0000_init.sql drizzle/meta/0000_snapshot.json`
+exit0/empty. `git hash-object drizzle/0000_init.sql` and
+`git rev-parse 868d226:drizzle/0000_init.sql` both returned
+`fd01246bf4c298797d81846477fa478f5ceee0cf`, preserving the original migration.
+0001 adds only durable login attempts and users.session_version default0.
+Local fresh/re-run migration coverage passes in the auth integration test;
+hosted migration/driver evidence awaits06. Task03 currently has no schema grant.
+Recheck inventory if03 requests a migration. Candidate05.3/G1 remain pending.
