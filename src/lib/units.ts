@@ -27,6 +27,11 @@ const CONVERSIONS: Record<string, { family: Family; factor: number }> = {
   gal: { family: "volume", factor: 3785.41 },
 };
 
+/** Unknown/count units must never resolve inherited object properties. */
+function conversionFor(unit: string) {
+  return Object.hasOwn(CONVERSIONS, unit) ? CONVERSIONS[unit] : undefined;
+}
+
 /** Offered in the unit dropdown, in the order cooks tend to reach for them. */
 export const UNIT_OPTIONS = [
   "",
@@ -62,12 +67,12 @@ export function normalizeUnit(unit: string | null | undefined): string {
 /** Key that decides which quantities can be summed together. */
 export function unitGroupKey(unit: string | null | undefined): string {
   const u = normalizeUnit(unit);
-  const conv = CONVERSIONS[u];
+  const conv = conversionFor(u);
   return conv ? `family:${conv.family}` : `unit:${u}`;
 }
 
 export function toBase(quantity: number, unit: string | null | undefined): number {
-  const conv = CONVERSIONS[normalizeUnit(unit)];
+  const conv = conversionFor(normalizeUnit(unit));
   return conv ? quantity * conv.factor : quantity;
 }
 
@@ -81,16 +86,20 @@ export function fromBase(
 ): { quantity: number; unit: string } {
   const known = unitsSeen
     .map((u) => normalizeUnit(u))
-    .filter((u) => CONVERSIONS[u])
-    .sort((a, b) => CONVERSIONS[b].factor - CONVERSIONS[a].factor);
+    .flatMap((unit) => {
+      const conversion = conversionFor(unit);
+      return conversion ? [{ unit, conversion }] : [];
+    })
+    .sort((a, b) => b.conversion.factor - a.conversion.factor);
 
   if (known.length === 0) {
     return { quantity: baseTotal, unit: normalizeUnit(unitsSeen[0]) };
   }
 
   const chosen =
-    known.find((u) => baseTotal / CONVERSIONS[u].factor >= 1) ?? known[known.length - 1];
-  return { quantity: baseTotal / CONVERSIONS[chosen].factor, unit: chosen };
+    known.find((item) => baseTotal / item.conversion.factor >= 1) ?? known[known.length - 1];
+
+  return { quantity: baseTotal / chosen.conversion.factor, unit: chosen.unit };
 }
 
 const FRACTIONS: [number, string][] = [

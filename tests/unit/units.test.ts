@@ -21,3 +21,15 @@ test("small totals use a smaller supplied unit; unspecified amounts stay blank",
   assert.equal(formatAmount(null, null), "");
   assert.equal(formatAmount(null, "clove"), "clove");
 });
+
+
+test("prototype property names remain custom count units with finite quantities", () => {
+  for (const unit of ["constructor", "toString", "__proto__"]) {
+    assert.equal(unitGroupKey(unit), `unit:${unit.toLowerCase()}`);
+    assert.equal(toBase(2, unit), 2);
+    assert.deepEqual(fromBase(3, [unit]), { quantity: 3, unit: unit.toLowerCase() });
+    assert.notEqual(unitGroupKey(unit), unitGroupKey("g"));
+    assert.notEqual(unitGroupKey(unit), unitGroupKey("cup"));
+  }
+  assert.deepEqual(fromBase(toBase(2, "lb"), ["constructor", "lb"]), { quantity: 2, unit: "lb" });
+});
