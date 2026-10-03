@@ -13,7 +13,7 @@ test("valid exported actions preserve custom count units and stable shopping sta
   await page.goto(`${harness.url}/plans/${week}`);
   const added = await callAction(page.request, harness.url, "addRecipeToDay", [week, 1, id]);
   expect(added.status()).toBe(200);
-  expect(await added.text()).not.toContain('"error"');
+  expect((await actionResult(added)).error).toBeUndefined();
   await page.goto(`${harness.url}/plans/${week}/shopping`);
   const checkbox = page.getByRole("checkbox", {name: "Got Custom item QA"});
   await expect(checkbox.locator("..")).toContainText("2 constructor");
