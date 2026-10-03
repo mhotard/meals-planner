@@ -110,4 +110,4 @@ Never expose account settings or write actions through that route.
 The schema is authoritative in `src/db/schema.ts`. `drizzle.config.ts` points to
 it and generates migrations into `drizzle/`; runtime migrations apply that
 history through the selected driver. Set `DATABASE_URL` to use hosted Postgres;
-otherwise PGlite stores local Postgres data in `.pglite/` or `PGLITE_DIR`.
+otherwise PGlite stores local Postgres data in `.pglite/` or `PGLITE_DIR` in development/test. Production connections require `DATABASE_URL` and fail instead of falling back to embedded storage.

@@ -97,10 +97,12 @@ These shell values override `.env.local`. Use http://localhost:3001.
 Stop the preview before deleting its temporary directory or running more
 database scripts. The default household database stays in `.pglite/`.
 
-For a production smoke test, set `AUTH_SECRET` in that terminal, run
-`npm run build`, and then `npm start -- --port 3001`. Keep the same disposable
-database variables set. Production cookies are secure: use HTTPS when testing
-authenticated production flows, or use the development server for local HTTP.
+For a production build, run `npm run build`. Production runtime requires a
+hosted `DATABASE_URL` and a securely generated `AUTH_SECRET`; it fails instead
+of falling back to local PGlite. Use the disposable development preview above
+for local HTTP flows. Production cookies are secure: task 06 verifies authenticated
+production flows on HTTPS staging with a separate hosted database. Never disable
+cookie security to get a local pass.
 
 ## Browser smoke checks
 

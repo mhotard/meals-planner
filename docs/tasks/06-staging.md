@@ -65,3 +65,13 @@ do not infer the proposed backup target from free-tier availability.
 Results: not run. Return staging URL/SHA, resource identifiers, runbooks,
 budget/data decisions, driver/browser results, restore/rollback evidence, and
 blockers. Never include connection strings, passwords, or dumps. G2: pending.
+
+## Preparation record — October 2, 2026
+
+Coordinator prepared docs/deployment.md and docs/operations.md, explicitly
+unverified until execution. src/db/create.ts now rejects missing/blank
+DATABASE_URL in production via a pure runtime-config guard. npm run check:
+exit 0, 13/13 tests including production fail-closed cases (macOS Node25.5.0).
+Candidate SHA/build evidence will be recorded after integration.
+No hosted resources, migration, HTTPS smoke, backup or restore performed.
+External steps await G1 plus account/project, region, budget, data and operator inputs.

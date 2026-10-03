@@ -1,5 +1,6 @@
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import * as schema from "./schema";
+import { requireHostedDatabase } from "@/lib/runtime-config";
 
 /**
  * One schema, two drivers:
@@ -25,7 +26,7 @@ export type Connection = {
 const MIGRATIONS = { migrationsFolder: "./drizzle" };
 
 export async function createConnection(): Promise<Connection> {
-  const url = process.env.DATABASE_URL;
+  const url = requireHostedDatabase(process.env.NODE_ENV, process.env.DATABASE_URL);
 
   if (url) {
     const postgres = (await import("postgres")).default;
