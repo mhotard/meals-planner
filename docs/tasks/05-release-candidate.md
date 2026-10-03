@@ -70,3 +70,19 @@ exit0/empty. `git hash-object drizzle/0000_init.sql` and
 Local fresh/re-run migration coverage passes in the auth integration test;
 hosted migration/driver evidence awaits06. Task03 currently has no schema grant.
 Recheck inventory if03 requests a migration. Candidate05.3/G1 remain pending.
+
+October3 pre-CI review:03 accepted without schema changes. Independent read-only
+workflow/config review found no static blocker, but identified unbounded browser
+readiness and possible generated-password failure diagnostics. Both are fixed
+in integratede6249da: timed readiness fetch, private native password input,
+CI secret masking and generic action-request transport failures. Workflow masks
+its signing secret before setting GITHUB_ENV. Full stability pair is running
+on frozene6249da in a clean detached checkout; remote05 execution still awaits04.
+
+Dependency refresh on24465f5 (same lockfile as frozen candidate):
+`npm audit --json` captured by Python subprocess returned audit exit1, nine
+development-only advisories (five high/four moderate, no critical). This is not
+a clean full audit. Proposed forced fixes downgrade major Next/Drizzle tool
+versions; they were not applied. Existing development-only exposure assessment
+in docs/release-evidence.md remains unchanged. `npm audit --omit=dev` exited0,
+zero production vulnerabilities. No dependency files changed during this review.
