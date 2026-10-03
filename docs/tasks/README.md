@@ -59,10 +59,11 @@ credentials, session storage, real exports, and household data out of task notes
 
 ## Active ownership grants
 
-01 owns auth/login/settings, auth helpers/tests, seed-user, schema and drizzle.
-02 owns form/domain validation, recipe/pantry/plan actions and related UI/tests; no schema/root changes.
+01 and02 grants are released after acceptance; future fixes are assigned explicitly.
+03 owns recipe actions, ingredient/recipe persistence, related integration tests and packet03.
 04 owns tests/e2e, playwright config, browser fixture scripts and ignore rules. Package/lockfile grant released after bc55ad0; coordinator owns dependency patches.
-Coordinator owns board/roadmap/CI and integration. Worktrees are based on 868d226, never remote main.
+Coordinator owns board/roadmap/CI and integration. Initial worktrees were based on
+868d226;03 starts from accepted integratedff5eae3, never remote main.
 
 October3 /root accepted01/02 on integrated application source4aecd2a after
 independent review and actual action/browser evidence (packets01/02/04).
