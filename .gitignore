@@ -43,3 +43,8 @@ next-env.d.ts
 
 # local embedded postgres
 .pglite/
+
+# browser-test artifacts contain synthetic local data; never commit auth traces
+/test-results/
+/playwright-report/
+/blob-report/

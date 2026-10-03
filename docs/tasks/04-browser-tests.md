@@ -1,8 +1,9 @@
 # 04 — Automate household browser regressions
 
-Status: queued. Owner: unassigned (browser QA).
+Status: in_progress. Owner: `/root/browser` (browser QA).
 Dependencies: scaffold after accepted 00; final acceptance after accepted 01–03.
-Branch/worktree and baseline commit: unassigned.
+Branch/worktree: `codex/04-browser-tests`, `/private/tmp/meals-task04`.
+Baseline commit: `868d22614355dac71ee3a72dd63cda51cdfd1e30` (accepted G0).
 
 ## Goal and ownership
 
@@ -46,6 +47,36 @@ from feature owners; CI belongs to 05.
 
 ## Handoff and acceptance
 
-Results: not run. Return scripts/config, installation instructions, suite
-inventory, runtime/compiler modes, candidate SHA, results, artifacts, and
-production-cookie coverage still assigned to 06. Coordinator acceptance: pending.
+Coordinator acceptance: pending. Scaffold/spec work in progress; final
+verification must run on the integrated 01–03 candidate.
+
+- Dependency commit: `bc55ad0f08778e3c24567261c8b9cc0b49ce9a11`.
+  Package/lockfile grant released back to coordinator; coordinator owns the
+  subsequent Next/security update. No application/schema edits in this packet.
+- Environment: macOS arm64, Node 22+, PGlite in per-test OS temporary directories,
+  synthetic random credentials, Chromium headless 153.0.8010.12/Playwright v1243,
+  development Webpack loopback HTTP. No household database was opened.
+- `npm ci`: passed, 386 baseline dependencies installed.
+- `npm install -D @playwright/test`: initial sandbox DNS ENOTFOUND; escalated
+  retry passed. `npx playwright install chromium`: escalated download passed.
+- `npx playwright test tests/e2e/household.spec.ts --grep 'recipe create'`:
+  first sandbox launch failed (macOS MachPort permission); escalated retry passed
+  1 test (22.2s), recipe CRUD, notes, cook-log history, search and deletion.
+- `npm run check`: passed, lint/fresh route types/TypeScript and 11 baseline tests.
+  A preceding lint run failed because the Playwright callback named `use` was
+  mistaken for React's hook; renamed the callback and reran successfully.
+- Initial desktop flow failed on expected decimal rendering (product renders
+  `2½ lb`/`½`); corrected preserved output expectations. A concurrent command
+  was refused by Next's build directory lock, with cleanup completed. Serialized
+  corrected desktop run passed 1 test (20.9s), including shopping computation,
+  persistence, public share, exports, and print CSS.
+- Signed-out direct-action transport debug found public-route forwarding can
+  stop at proxy before dispatch; helper now posts compiled feature routes.
+  Signed-out proxy protection passed (1 test, 33.3s); independent action auth
+  evidence uses a signed nonexistent-user fixture token and requires integrated
+  task 01. Guard suite plus Settings/revocation results pending integration.
+
+Suite inventory, isolation contract, commands, compiler settings, artifact
+policy, and coverage limits: `tests/e2e/README.md`. Only failure PNG screenshots
+in ignored `test-results/` may be uploaded; traces/session state are disabled.
+HTTPS production cookies and OS print preview remain unverified (task 06).
