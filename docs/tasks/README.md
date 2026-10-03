@@ -11,9 +11,9 @@ Only the coordinator changes this board; workers update their own packets.
 | ID | Packet | Status | Owner / branch | Dependencies | Evidence |
 | --- | --- | --- | --- | --- | --- |
 | 00 | [Baseline](00-baseline.md) | accepted | Coordinator / codex/release-baseline | None | 868d226; fresh install, 11/11 checks, Webpack build, disposable setup/login |
-| 01 | [Authentication](01-authentication.md) | review | auth / codex/01-authentication | 00 | Integrated e3c91da; runtime auth evidence pending |
-| 02 | [Validation](02-validation.md) | review | validation / codex/02-validation | 00 | Integrated a66eabc; runtime no-write evidence pending |
-| 03 | [Transactions](03-transactions.md) | queued | Unassigned | 02 | Not run |
+| 01 | [Authentication](01-authentication.md) | accepted | auth / codex/01-authentication | 00 | 4aecd2a; 27 actions × four auth contexts no writes; Settings/CLI revocation and limiter pass |
+| 02 | [Validation](02-validation.md) | accepted | validation / codex/02-validation | 00 | 4aecd2a; 37 crafted no-write cases, visible errors/corrections, custom-unit persistence pass |
+| 03 | [Transactions](03-transactions.md) | ready | Unassigned | 02 | Acceptance source 4aecd2a; dispatch next |
 | 04 | [Browser tests](04-browser-tests.md) | in_progress | browser / codex/04-browser-tests | Scaffold: 00; acceptance: 01–03 | Baseline 868d226; /private/tmp/meals-task04 |
 | 05 | [Release candidate / CI](05-release-candidate.md) | queued | Unassigned | 01–04 | Not run |
 | 06 | [Staging / recovery rehearsal](06-staging.md) | queued | Unassigned | 05/G1 | Not run |
@@ -34,7 +34,7 @@ Historical passes are not acceptance of a new implementation.
 | --- | --- | --- |
 | Package/lockfile and root tool configuration | Coordinator /root | Explicit temporary grant to 04 or 05 |
 | Schema and generated migrations | Coordinator (released by 01) | One task at a time, using latest integrated schema |
-| Recipe actions | validation (02) | 02 first; 03 after 02 integrates |
+| Recipe actions | Coordinator (released by 02) | Transfer to03 on dispatch |
 | Deployment/provider mutations | Unassigned | 06 then 07; named environment required |
 
 ## Pending execution inputs
@@ -63,3 +63,7 @@ credentials, session storage, real exports, and household data out of task notes
 02 owns form/domain validation, recipe/pantry/plan actions and related UI/tests; no schema/root changes.
 04 owns tests/e2e, playwright config, browser fixture scripts and ignore rules. Package/lockfile grant released after bc55ad0; coordinator owns dependency patches.
 Coordinator owns board/roadmap/CI and integration. Worktrees are based on 868d226, never remote main.
+
+October3 /root accepted01/02 on integrated application source4aecd2a after
+independent review and actual action/browser evidence (packets01/02/04).
+Next: bounded03 dispatch; G1 still requires accepted03/04 and exact-SHA CI.

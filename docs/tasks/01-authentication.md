@@ -1,10 +1,10 @@
 # 01 — Harden authentication and sessions
 
-Status: review. Owner: authentication worker `/root/auth`.
+Status: accepted. Owner: authentication worker `/root/auth`.
 Dependencies: accepted 00 (`868d22614355dac71ee3a72dd63cda51cdfd1e30`).
 Branch: `codex/01-authentication`; worktree: `/private/tmp/meals-task01`.
 Implementation commit: `0b2f226738ea981975b1962eb2b7bee3a0e401e6`.
-Coordinator acceptance and application-runtime checks remain pending.
+Coordinator accepted October 3, 2026 on integrated source `4aecd2a4f615be2543453e096ea0ac8d6423a179`.
 
 ## Goal and ownership
 
@@ -165,7 +165,19 @@ revocation; invalid Settings/member inputs with no writes; integrated migration,
 check/build, and browser suite. Pure helper/database tests above do not establish
 that exported Next actions reject unauthorized writes.
 
-Coordinator acceptance: pending integrated review and task 04 runtime evidence.
+Coordinator acceptance: accepted for the local release candidate. Task04's
+corrected native-encoder runtime tests verify all 27 mutations with signed-out,
+invalid, expired and signature-valid deleted-user sessions; domain and full-user
+digests remain unchanged. Actual Settings malformed inputs/no-write, password
+change/two-session revocation/new login, durable limiter after restart, redirect
+policies and actual CLI reset/two-session revocation/new login all passed.
+Exact commands, worker source SHAs and environment are in task04's targeted
+evidence; the source is integrated through `4aecd2a`. Coordinator `npm run check`
+on integrated `daad802` exited0 with 24/24 tests; later `4aecd2a` changes only
+one browser assertion. Webpack compilation of the same application source
+passed before `7e8fd75` (task06 preparation). No authorization stub was used.
+Hosted simultaneous independent-connection throttling and Secure cookies on
+HTTPS remain task06/G2 requirements, not claimed local passes.
 Shared-schema lock can be released after integration of the new migration.
 Suggested documentation integration: update architecture/development auth policy
 with session-version revocation, 72-byte bcrypt limit, production secret length,

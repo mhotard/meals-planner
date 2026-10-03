@@ -1,13 +1,13 @@
 # 02 — Validate mutation inputs before writes
 
-Status: review. Owner: coordinator-dispatched validation subagent.
+Status: accepted. Owner: coordinator-dispatched validation subagent.
 Dependencies: accepted 00/G0. Branch: `codex/02-validation`.
 Worktree: `/private/tmp/meals-task02`.
 Baseline: `868d22614355dac71ee3a72dd63cda51cdfd1e30`.
 Implementation: `b5898a4431eabdd2931d259872fcb53b9ca2cb10`.
 Reviewed missing-ID fix: `e06958590496cba3b26f0cac8f7b09e212df61f0`.
 Reviewed unit conversion fix: `9bf44293da038c2cffada02881db6fcb66746bba`.
-Coordinator acceptance remains pending integrated action/browser verification.
+Coordinator accepted October 3, 2026 on integrated source `4aecd2a4f615be2543453e096ea0ac8d6423a179`.
 
 ## Goal and ownership
 
@@ -126,3 +126,28 @@ Next action: integrate this implementation and task 04's scaffold with task 01,
 run authenticated invalid-input cases and before/after assertions, review visible
 errors and valid fraction/date flows, then accept 02 and transfer recipe actions
 to task 03. Fix any defects found in that review before acceptance.
+
+### Coordinator acceptance — October 3, 2026
+
+All local milestones02.1–02.5 accepted; recipe actions transfer to03. Independent
+review fixes for missing update ID and inherited unit names are integrated.
+Task04 uses installed React encoding and parses the actual action result;
+37 crafted-invalid calls produced errors with unchanged domain/full-user digests,
+including true undefined update ID, malformed arrays and cross-plan IDs.
+The initially copied Flight encoding/whole-body error assertion were defective
+test code and were corrected before acceptance.
+
+Coordinator environment: macOS arm64, Node25.5.0/npm11.8.0/Next16.3.8,
+Chromium headless, development Webpack, desktop1280×900, per-test temporary
+PGlite and random synthetic accounts. No household database opened.
+
+| Exact command | Commit / result |
+| --- | --- |
+| npm run check | daad802; exit0, lint/fresh route types/TypeScript and 24/24 tests |
+| npm run test:e2e -- tests/e2e/action-guards.spec.ts tests/e2e/household.spec.ts --grep 'crafted invalid\|custom count units\|recipe create\|weekly item retains' | daad802; exit1, 3 passed (crafted no-write28.0s, recipe error/correction/CRUD16.6s, pantry/plan error/correction11.9s), custom positive failed obsolete whole-response assertion |
+| npm run test:e2e -- tests/e2e/action-guards.spec.ts --grep 'custom count units' | 4aecd2a; exit0, 1/1 (15.0s); actual creation, plan membership, finite 2 constructor shopping quantity and stable checked override after reload |
+
+The failed assertion above is fixed in4aecd2a; all affected checks pass.
+Webpack production compilation already passed on identical application source
+(task06 preparation). Task04's additional targeted runtime evidence records
+exact worker commands/SHAs; its final stability gate awaits03 integration.

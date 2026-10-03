@@ -15,7 +15,8 @@ a Webpack production build, and manual login/plan/shopping/share checks against
 a disposable database. These are historical results, not acceptance evidence
 for later changes. Turbopack could not start a worker in that environment.
 
-The source changes are still local and uncommitted. Hosting is unconfirmed:
+The restructuring is preserved in baseline commit `868d226`; required release
+fixes are being reviewed on `codex/release-baseline`. Hosting is unconfirmed:
 the inspected GitHub repository had no homepage or deployment records. No live
 URL, production database, backup policy, or deployment account has been verified.
 

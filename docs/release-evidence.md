@@ -1,6 +1,6 @@
 # Release evidence
 
-Coordinator: /root. Updated October 2, 2026.
+Coordinator: /root. Updated October 3, 2026.
 Integration branch: codex/release-baseline.
 Preserved baseline: 868d22614355dac71ee3a72dd63cda51cdfd1e30.
 
@@ -68,3 +68,23 @@ all three workers retained their isolated drafts after usage-limit interruption;
 no work discarded and no accepted status advanced.
 
 Production config smoke (local preparation): missing database, absent/short signing secret returnHTTP500; no embeddedDB created. Initial process-exit assumption failed and was corrected; see task06. HTTPS/hosted evidence pending.
+
+## Integrated local review — October 3
+
+Candidate source through `7e8fd7553ae7103700ffd017dc18a6029adced55` includes
+authentication, validation, reviewed missing-update-ID and custom-unit fixes,
+browser scaffolding and production configuration preflight. Coordinator checks
+in the macOS checkout (Node25.5.0/npm11.8.0/Next16.3.8): `npm run check` exit0,
+24/24 unit/integration tests with lint, fresh route types and TypeScript;
+the network-enabled Webpack build and production-config smoke passed as recorded
+in task06. The build source was unchanged by the final documentation commit.
+Default Turbopack remains unavailable locally as recorded
+above; the CI default build has not run.
+
+`npm run test:e2e -- tests/e2e/household.spec.ts` on `7e8fd75` exited0,
+3/3 Chromium development Webpack tests (~1.1minutes): recipe CRUD/notes/cook logs,
+desktop1280 and phone390 plans/shopping persistence, signed-out shares,
+clipboard exports and print CSS. Every test created and removed a disposable
+PGlite directory and synthetic account. No production HTTPS or OS print-preview
+claim follows from this local coverage. Additional worker action/authentication
+and visible-invalid-input evidence is under review before 01/02 acceptance.
