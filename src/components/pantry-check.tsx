@@ -1,7 +1,8 @@
 "use client";
 
-import { useTransition } from "react";
+import { useTransition, useState } from "react";
 import { categoryIcon } from "@/lib/categories";
+import type { MutationResult } from "@/lib/form";
 import type { ShoppingItem } from "@/lib/shopping";
 
 /**
@@ -14,9 +15,10 @@ export default function PantryCheck({
   onAdd,
 }: {
   items: ShoppingItem[];
-  onAdd?: (itemKey: string) => Promise<void>;
+  onAdd?: (itemKey: string) => Promise<MutationResult | void>;
 }) {
   const [pending, startTransition] = useTransition();
+  const [error, setError] = useState<string>();
 
   if (items.length === 0) return null;
 
@@ -28,6 +30,7 @@ export default function PantryCheck({
         you&apos;re low on to move it onto the list.
       </p>
 
+      {error && <p role="alert" className="mb-2 text-sm text-warn">{error}</p>}
       <ul className={`flex flex-wrap gap-2 ${pending ? "opacity-60" : ""}`}>
         {items.map((item) => (
           <li key={item.key}>
@@ -36,7 +39,8 @@ export default function PantryCheck({
                 type="button"
                 onClick={() =>
                   startTransition(async () => {
-                    await onAdd(item.key);
+                    const result = await onAdd(item.key);
+                    setError(result?.error);
                   })
                 }
                 className="group flex items-center gap-2 rounded-xl border border-line-strong bg-surface px-3 py-2 text-sm transition-colors hover:border-accent/40 hover:bg-accent-soft"

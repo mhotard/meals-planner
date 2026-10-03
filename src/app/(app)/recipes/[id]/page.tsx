@@ -1,3 +1,4 @@
+import ActionForm from "@/components/action-form";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/server/auth";
@@ -117,7 +118,7 @@ export default async function RecipePage({ params }: PageProps<"/recipes/[id]">)
           Log a night you made it, so you can see what&apos;s in rotation.
         </p>
 
-        <form
+        <ActionForm
           action={logCooked.bind(null, recipe.id)}
           className="mb-6 grid gap-3 sm:grid-cols-[auto_auto_1fr_auto]"
         >
@@ -143,7 +144,7 @@ export default async function RecipePage({ params }: PageProps<"/recipes/[id]">)
           <button type="submit" className="btn-primary">
             Log it
           </button>
-        </form>
+        </ActionForm>
 
         {logs.length === 0 ? (
           <p className="text-sm text-muted">Never logged.</p>
@@ -164,7 +165,7 @@ export default async function RecipePage({ params }: PageProps<"/recipes/[id]">)
                   {log.note}
                   {log.userName && <span className="text-muted"> · {log.userName}</span>}
                 </span>
-                <form action={deleteCookLog.bind(null, log.id, recipe.id)}>
+                <ActionForm action={deleteCookLog.bind(null, log.id, recipe.id)}>
                   <button
                     type="submit"
                     className="text-xs text-muted hover:text-warn"
@@ -172,7 +173,7 @@ export default async function RecipePage({ params }: PageProps<"/recipes/[id]">)
                   >
                     remove
                   </button>
-                </form>
+                </ActionForm>
               </li>
             ))}
           </ul>

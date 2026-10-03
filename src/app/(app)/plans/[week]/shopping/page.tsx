@@ -1,3 +1,4 @@
+import ActionForm from "@/components/action-form";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/server/auth";
@@ -54,11 +55,11 @@ export default async function ShoppingPage({
             {remaining === 0 ? "all done 🎉" : `${remaining} to get`}
           </p>
         </div>
-        <form action={clearCheckedItems.bind(null, week)} className="no-print">
+        <ActionForm action={clearCheckedItems.bind(null, week)} className="no-print">
           <button type="submit" className="btn-ghost">
             Uncheck all
           </button>
-        </form>
+        </ActionForm>
       </div>
 
       {active.length > 0 && (
@@ -118,11 +119,11 @@ export default async function ShoppingPage({
           actions={{
             toggleChecked: async (itemKey: string, checked: boolean) => {
               "use server";
-              await setItemState(week, itemKey, { checked });
+              return setItemState(week, itemKey, { checked });
             },
             toggleExcluded: async (itemKey: string, excluded: boolean) => {
               "use server";
-              await setItemState(week, itemKey, { excluded });
+              return setItemState(week, itemKey, { excluded });
             },
           }}
         />
@@ -132,13 +133,13 @@ export default async function ShoppingPage({
         items={pantryCheck}
         onAdd={async (itemKey: string) => {
           "use server";
-          await setItemState(week, itemKey, { excluded: false });
+          return setItemState(week, itemKey, { excluded: false });
         }}
       />
 
       <section className="no-print card p-6">
         <h2 className="mb-4 display text-lg">Add something else</h2>
-        <form
+        <ActionForm
           action={addExtraItem.bind(null, week)}
           className="grid gap-3 sm:grid-cols-[1fr_5rem_7rem_9rem_auto]"
         >
@@ -161,7 +162,7 @@ export default async function ShoppingPage({
           <button type="submit" className="btn-primary">
             Add
           </button>
-        </form>
+        </ActionForm>
 
         {items.some((i) => i.isExtra) && (
           <ul className="mt-4 divide-y divide-line text-sm">
@@ -173,7 +174,7 @@ export default async function ShoppingPage({
                     {item.name}
                     {item.amount && <span className="text-muted"> · {item.amount}</span>}
                   </span>
-                  <form
+                  <ActionForm
                     action={removeExtraItem.bind(
                       null,
                       week,
@@ -183,7 +184,7 @@ export default async function ShoppingPage({
                     <button type="submit" className="text-xs text-muted hover:text-warn">
                       remove
                     </button>
-                  </form>
+                  </ActionForm>
                 </li>
               ))}
           </ul>

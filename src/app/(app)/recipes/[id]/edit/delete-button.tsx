@@ -1,5 +1,7 @@
 "use client";
 
+import ActionForm from "@/components/action-form";
+
 import { deleteRecipe } from "../../actions";
 
 export default function DeleteRecipeButton({
@@ -10,7 +12,7 @@ export default function DeleteRecipeButton({
   name: string;
 }) {
   return (
-    <form
+    <ActionForm
       action={deleteRecipe.bind(null, recipeId)}
       onSubmit={(e) => {
         if (!confirm(`Delete “${name}” and its history?`)) e.preventDefault();
@@ -19,6 +21,6 @@ export default function DeleteRecipeButton({
       <button type="submit" className="btn border border-warn/40 text-warn hover:bg-warn/10">
         Delete recipe
       </button>
-    </form>
+    </ActionForm>
   );
 }

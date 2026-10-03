@@ -1,3 +1,4 @@
+import ActionForm from "@/components/action-form";
 import { requireUser } from "@/server/auth";
 import { listIngredients } from "@/server/recipes";
 import { categoryIcon, categoryRank } from "@/lib/categories";
@@ -56,7 +57,7 @@ export default async function PantryPage() {
                 </span>
                 <span className="flex-1 truncate font-medium">{item.name}</span>
 
-                <form
+                <ActionForm
                   action={updateWeeklyAmount.bind(null, item.id)}
                   className="flex items-center gap-2"
                 >
@@ -79,9 +80,9 @@ export default async function PantryPage() {
                   <button type="submit" className="btn-ghost px-2 py-1 text-xs">
                     Save
                   </button>
-                </form>
+                </ActionForm>
 
-                <form action={setSupply.bind(null, item.id, "pantry")}>
+                <ActionForm action={setSupply.bind(null, item.id, "pantry")}>
                   <button
                     type="submit"
                     className="rounded-lg px-2 py-1 text-xs text-muted hover:bg-accent-soft hover:text-accent"
@@ -89,8 +90,8 @@ export default async function PantryPage() {
                   >
                     → pantry
                   </button>
-                </form>
-                <form action={setSupply.bind(null, item.id, "per_recipe")}>
+                </ActionForm>
+                <ActionForm action={setSupply.bind(null, item.id, "per_recipe")}>
                   <button
                     type="submit"
                     className="rounded-lg px-2 py-1 text-xs text-muted hover:bg-warn-soft hover:text-warn"
@@ -98,13 +99,13 @@ export default async function PantryPage() {
                   >
                     remove
                   </button>
-                </form>
+                </ActionForm>
               </li>
             ))}
           </ul>
         )}
 
-        <form action={addWeeklyItem} className="grid gap-2 sm:grid-cols-[1fr_4.5rem_6rem_9rem_auto]">
+        <ActionForm action={addWeeklyItem} className="grid gap-2 sm:grid-cols-[1fr_4.5rem_6rem_9rem_auto]">
           <input
             name="name"
             required
@@ -125,7 +126,7 @@ export default async function PantryPage() {
           <button type="submit" className="btn-primary">
             Add
           </button>
-        </form>
+        </ActionForm>
       </section>
 
       {/* ---------------------------------------------------------------- */}
@@ -148,7 +149,7 @@ export default async function PantryPage() {
                 <span className="flex items-center gap-2 rounded-xl border border-line-strong px-3 py-1.5 text-sm">
                   <span aria-hidden>{categoryIcon(item.category)}</span>
                   {item.name}
-                  <form action={setSupply.bind(null, item.id, "per_recipe")}>
+                  <ActionForm action={setSupply.bind(null, item.id, "per_recipe")}>
                     <button
                       type="submit"
                       className="text-xs text-muted hover:text-warn"
@@ -156,14 +157,14 @@ export default async function PantryPage() {
                     >
                       ✕
                     </button>
-                  </form>
+                  </ActionForm>
                 </span>
               </li>
             ))}
           </ul>
         )}
 
-        <form action={addPantryItem} className="grid gap-2 sm:grid-cols-[1fr_9rem_auto]">
+        <ActionForm action={addPantryItem} className="grid gap-2 sm:grid-cols-[1fr_9rem_auto]">
           <input
             name="name"
             required
@@ -176,7 +177,7 @@ export default async function PantryPage() {
           <button type="submit" className="btn-secondary">
             Add
           </button>
-        </form>
+        </ActionForm>
       </section>
 
       {/* ---------------------------------------------------------------- */}
@@ -188,7 +189,7 @@ export default async function PantryPage() {
         </p>
       </div>
 
-      <form
+      <ActionForm
         action={createIngredient}
         className="card grid gap-3 p-6 sm:grid-cols-[1fr_auto_auto_auto]"
       >
@@ -204,57 +205,55 @@ export default async function PantryPage() {
         <button type="submit" className="btn-primary">
           Add
         </button>
-      </form>
+      </ActionForm>
 
       {sorted.length > 0 && (
         <div className="card divide-y divide-line">
           {sorted.map((ing) => (
-            <form
-              key={ing.id}
-              action={updateIngredient.bind(null, ing.id)}
-              className="grid grid-cols-2 items-center gap-3 p-4 sm:grid-cols-[1fr_10rem_14rem_auto]"
-            >
-              <div className="col-span-2 flex items-center gap-2.5 sm:col-span-1">
-                <span aria-hidden className="text-base">
-                  {categoryIcon(ing.category)}
-                </span>
-                <div className="min-w-0">
-                  <p className="truncate font-medium">{ing.name}</p>
-                  <p className="text-xs text-muted">
-                    {ing.usedIn === 0
-                      ? "not used in any recipe"
-                      : `in ${ing.usedIn} recipe${ing.usedIn === 1 ? "" : "s"}`}
-                  </p>
+            <div key={ing.id}>
+              <ActionForm
+                action={updateIngredient.bind(null, ing.id)}
+                className="grid grid-cols-2 items-center gap-3 p-4 sm:grid-cols-[1fr_10rem_14rem_auto]"
+              >
+                <div className="col-span-2 flex items-center gap-2.5 sm:col-span-1">
+                  <span aria-hidden className="text-base">
+                    {categoryIcon(ing.category)}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="truncate font-medium">{ing.name}</p>
+                    <p className="text-xs text-muted">
+                      {ing.usedIn === 0
+                        ? "not used in any recipe"
+                        : `in ${ing.usedIn} recipe${ing.usedIn === 1 ? "" : "s"}`}
+                    </p>
+                  </div>
                 </div>
-              </div>
 
-              <CategorySelect
-                name="category"
-                defaultValue={ing.category}
-                aria-label={`Aisle for ${ing.name}`}
-              />
+                <CategorySelect
+                  name="category"
+                  defaultValue={ing.category}
+                  aria-label={`Aisle for ${ing.name}`}
+                />
 
-              <SupplySelect
-                name="supply"
-                defaultValue={ing.supply}
-                aria-label={`How often you buy ${ing.name}`}
-              />
+                <SupplySelect
+                  name="supply"
+                  defaultValue={ing.supply}
+                  aria-label={`How often you buy ${ing.name}`}
+                />
 
-              <div className="flex items-center gap-2">
-                <button type="submit" className="btn-secondary">
-                  Save
-                </button>
-                {ing.usedIn === 0 && (
-                  <button
-                    type="submit"
-                    formAction={deleteIngredient.bind(null, ing.id)}
-                    className="text-xs text-muted hover:text-warn"
-                  >
-                    delete
+                <div className="flex items-center gap-2">
+                  <button type="submit" className="btn-secondary">
+                    Save
                   </button>
-                )}
-              </div>
-            </form>
+
+                </div>
+              </ActionForm>
+              {ing.usedIn === 0 && (
+                <ActionForm action={deleteIngredient.bind(null, ing.id)} className="px-4 pb-3">
+                  <button type="submit" className="text-xs text-muted hover:text-warn">delete</button>
+                </ActionForm>
+              )}
+            </div>
           ))}
         </div>
       )}

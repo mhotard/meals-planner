@@ -1,16 +1,18 @@
 "use client";
 
-import { useOptimistic, useTransition } from "react";
+import { useOptimistic, useTransition, useState } from "react";
 import { categoryIcon } from "@/lib/categories";
+import type { MutationResult } from "@/lib/form";
 import type { ShoppingItem } from "@/lib/shopping";
 
 type Actions = {
-  toggleChecked: (itemKey: string, checked: boolean) => Promise<void>;
-  toggleExcluded: (itemKey: string, excluded: boolean) => Promise<void>;
+  toggleChecked: (itemKey: string, checked: boolean) => Promise<MutationResult | void>;
+  toggleExcluded: (itemKey: string, excluded: boolean) => Promise<MutationResult | void>;
 };
 
 function Row({ item, actions }: { item: ShoppingItem; actions?: Actions }) {
   const [pending, startTransition] = useTransition();
+  const [error, setError] = useState<string>();
   // Optimistic so tapping through a list in the store feels instant; falls
   // back to the server value once the action settles or the page refreshes.
   const [checked, setChecked] = useOptimistic(item.checked);
@@ -32,7 +34,8 @@ function Row({ item, actions }: { item: ShoppingItem; actions?: Actions }) {
             const next = e.target.checked;
             startTransition(async () => {
               setChecked(next);
-              await actions?.toggleChecked(item.key, next);
+              const result = await actions?.toggleChecked(item.key, next);
+              setError(result?.error);
             });
           }}
           className="size-5 shrink-0 rounded accent-[var(--accent)] sm:size-4"
@@ -65,12 +68,14 @@ function Row({ item, actions }: { item: ShoppingItem; actions?: Actions }) {
         </span>
       </label>
 
+      {error && <p role="alert" className="text-xs text-warn">{error}</p>}
       {!readOnly && (
         <button
           type="button"
           onClick={() =>
             startTransition(async () => {
-              await actions.toggleExcluded(item.key, !item.excluded);
+              const result = await actions.toggleExcluded(item.key, !item.excluded);
+              setError(result?.error);
             })
           }
           className="no-print shrink-0 rounded-lg px-2 py-1 text-xs text-muted opacity-0 transition-opacity hover:bg-warn-soft hover:text-warn focus:opacity-100 group-hover:opacity-100 max-sm:opacity-100"

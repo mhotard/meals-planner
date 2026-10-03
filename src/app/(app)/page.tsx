@@ -1,3 +1,4 @@
+import ActionForm from "@/components/action-form";
 import Link from "next/link";
 import { requireUser } from "@/server/auth";
 import { getPlanByWeek, getPlanEntries } from "@/server/plans";
@@ -38,11 +39,11 @@ export default async function HomePage() {
           <p className="mt-1 text-sm text-muted">
             Pick a few recipes and the shopping list writes itself.
           </p>
-          <form action={createPlan.bind(null, week)} className="mt-5">
+          <ActionForm action={createPlan.bind(null, week)} className="mt-5">
             <button type="submit" className="btn-primary">
               Plan this week
             </button>
-          </form>
+          </ActionForm>
         </div>
       ) : (
         <>

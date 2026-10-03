@@ -2,48 +2,29 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { requireUser } from "@/server/auth";
-import { field, numericOrNull, optionalField, parseQuantity } from "@/lib/form";
+import { field, integerValue, mutationResult, optionalField, positiveId, rejectInput } from "@/lib/form";
+import { dateValue, validateRecipeInput } from "@/lib/validation";
 import { findOrCreateIngredient } from "@/db/ingredients";
-import { normalizeUnit } from "@/lib/units";
+
 
 export type RecipeFormState = { error?: string };
 
-/** Ingredient rows arrive as parallel arrays from the dynamic form. */
-function parseIngredientRows(formData: FormData) {
-  const names = formData.getAll("ing-name").map(String);
-  const quantities = formData.getAll("ing-quantity").map(String);
-  const units = formData.getAll("ing-unit").map(String);
-  const notes = formData.getAll("ing-note").map(String);
-
-  return names
-    .map((name, i) => ({
-      name: name.trim(),
-      quantity: numericOrNull(quantities[i] ?? ""),
-      unit: normalizeUnit(units[i]) || null,
-      note: notes[i]?.trim() || null,
-    }))
-    .filter((row) => row.name.length > 0);
-}
-
 async function writeRecipe(formData: FormData, recipeId?: number) {
-  const name = field(formData, "name");
-  if (!name) return { error: "Give the recipe a name." };
-
-  const values = {
-    name,
-    description: optionalField(formData, "description"),
-    notes: optionalField(formData, "notes"),
-    sourceUrl: optionalField(formData, "sourceUrl"),
-    servings: parseQuantity(field(formData, "servings")),
-    prepMinutes: parseQuantity(field(formData, "prepMinutes")),
-    updatedAt: new Date(),
-  };
-
+  const input = validateRecipeInput(formData);
+  if (!input.ok) return { error: input.error };
+  if (recipeId !== undefined) {
+    try { positiveId(recipeId, "Recipe"); } catch { return { error: "Recipe must be a positive ID." }; }
+  }
+  const { ingredients: rows, ...recipe } = input.value;
+  const values = { ...recipe, updatedAt: new Date() };
   const db = await getDb();
-  const rows = parseIngredientRows(formData);
+  if (recipeId !== undefined) {
+    const [existing] = await db.select({ id: schema.recipes.id }).from(schema.recipes).where(eq(schema.recipes.id, recipeId));
+    if (!existing) return { error: "Recipe no longer exists." };
+  }
 
   let id = recipeId;
   if (id) {
@@ -101,43 +82,58 @@ export async function updateRecipe(
 
 export async function deleteRecipe(recipeId: number) {
   await requireUser();
-  const db = await getDb();
-  await db.delete(schema.recipes).where(eq(schema.recipes.id, recipeId));
+  const result = await mutationResult(async () => {
+    positiveId(recipeId, "Recipe");
+    const db = await getDb();
+    const deleted = await db.delete(schema.recipes).where(eq(schema.recipes.id, recipeId)).returning({ id: schema.recipes.id });
+    if (!deleted.length) rejectInput("Recipe no longer exists.");
+  });
+  if (result.error) return result;
   revalidatePath("/recipes");
   redirect("/recipes");
 }
 
 export async function logCooked(recipeId: number, formData: FormData) {
   const me = await requireUser();
-  const db = await getDb();
-
-  const rating = field(formData, "rating");
-  await db.insert(schema.cookLogs).values({
-    recipeId,
-    cookedOn: field(formData, "cookedOn") || new Date().toISOString().slice(0, 10),
-    userId: me.id,
-    rating: rating ? Number(rating) : null,
-    note: optionalField(formData, "note"),
+  const result = await mutationResult(async () => {
+    positiveId(recipeId, "Recipe");
+    const cookedOn = dateValue(field(formData, "cookedOn"), "Cook date");
+    const rating = integerValue(field(formData, "rating"), "Rating", 1, 3);
+    const note = optionalField(formData, "note", 2000);
+    const db = await getDb();
+    const [recipe] = await db.select({ id: schema.recipes.id }).from(schema.recipes).where(eq(schema.recipes.id, recipeId));
+    if (!recipe) rejectInput("Recipe no longer exists.");
+    await db.insert(schema.cookLogs).values({ recipeId, cookedOn, userId: me.id, rating, note });
   });
-
+  if (result.error) return result;
   revalidatePath(`/recipes/${recipeId}`);
   revalidatePath("/recipes");
   revalidatePath("/");
+  return result;
 }
 
 export async function deleteCookLog(logId: number, recipeId: number) {
   await requireUser();
-  const db = await getDb();
-  await db.delete(schema.cookLogs).where(eq(schema.cookLogs.id, logId));
-  revalidatePath(`/recipes/${recipeId}`);
+  const result = await mutationResult(async () => {
+    positiveId(logId, "Cook log");
+    positiveId(recipeId, "Recipe");
+    const db = await getDb();
+    const deleted = await db.delete(schema.cookLogs).where(and(eq(schema.cookLogs.id, logId), eq(schema.cookLogs.recipeId, recipeId))).returning({ id: schema.cookLogs.id });
+    if (!deleted.length) rejectInput("Cook log does not belong to this recipe.");
+  });
+  if (!result.error) revalidatePath(`/recipes/${recipeId}`);
+  return result;
 }
 
 export async function updateRecipeNotes(recipeId: number, formData: FormData) {
   await requireUser();
-  const db = await getDb();
-  await db
-    .update(schema.recipes)
-    .set({ notes: optionalField(formData, "notes"), updatedAt: new Date() })
-    .where(eq(schema.recipes.id, recipeId));
-  revalidatePath(`/recipes/${recipeId}`);
+  const result = await mutationResult(async () => {
+    positiveId(recipeId, "Recipe");
+    const notes = optionalField(formData, "notes");
+    const db = await getDb();
+    const updated = await db.update(schema.recipes).set({ notes, updatedAt: new Date() }).where(eq(schema.recipes.id, recipeId)).returning({ id: schema.recipes.id });
+    if (!updated.length) rejectInput("Recipe no longer exists.");
+  });
+  if (!result.error) revalidatePath(`/recipes/${recipeId}`);
+  return result;
 }

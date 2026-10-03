@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import type { MutationResult } from "@/lib/form";
 import { relativeDays, toISODate } from "@/lib/dates";
 
 export type PickerRecipe = {
@@ -52,11 +53,12 @@ export default function RecipePicker({
   recipes: PickerRecipe[];
   /** Already on this week's plan — flagged so you don't repeat by accident. */
   plannedRecipeIds: number[];
-  onPickRecipe: (recipeId: number) => Promise<void>;
-  onPickCustom: (label: string) => Promise<void>;
+  onPickRecipe: (recipeId: number) => Promise<MutationResult | void>;
+  onPickCustom: (label: string) => Promise<MutationResult | void>;
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
+  const [error, setError] = useState<string>();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
@@ -106,6 +108,7 @@ export default function RecipePicker({
   }, [active]);
 
   function show() {
+    setError(undefined);
     setQuery("");
     setFilter("all");
     setActive(0);
@@ -120,8 +123,9 @@ export default function RecipePicker({
 
   function pick(recipeId: number) {
     startTransition(async () => {
-      await onPickRecipe(recipeId);
-      hide();
+      const result = await onPickRecipe(recipeId);
+      setError(result?.error);
+      if (!result?.error) hide();
     });
   }
 
@@ -129,8 +133,9 @@ export default function RecipePicker({
     const label = query.trim();
     if (!label) return;
     startTransition(async () => {
-      await onPickCustom(label);
-      hide();
+      const result = await onPickCustom(label);
+      setError(result?.error);
+      if (!result?.error) hide();
     });
   }
 
@@ -278,6 +283,7 @@ export default function RecipePicker({
             </ul>
 
             <div className="border-t border-line p-3">
+              {error && <p role="alert" className="text-sm text-warn">{error}</p>}
               <button
                 type="button"
                 onClick={pickCustom}

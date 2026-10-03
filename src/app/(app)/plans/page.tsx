@@ -1,3 +1,4 @@
+import ActionForm from "@/components/action-form";
 import Link from "next/link";
 import { requireUser } from "@/server/auth";
 import { listPlans } from "@/server/plans";
@@ -62,21 +63,21 @@ export default async function PlansPage() {
 
         <div className="flex flex-wrap items-center gap-2">
           {!planned.has(thisWeek) && (
-            <form action={createPlan.bind(null, thisWeek)}>
+            <ActionForm action={createPlan.bind(null, thisWeek)}>
               <button type="submit" className="btn-primary">
                 This week
               </button>
-            </form>
+            </ActionForm>
           )}
           {!planned.has(nextWeek) && (
-            <form action={createPlan.bind(null, nextWeek)}>
+            <ActionForm action={createPlan.bind(null, nextWeek)}>
               <button type="submit" className="btn-secondary">
                 Next week ({formatWeekRange(nextWeek)})
               </button>
-            </form>
+            </ActionForm>
           )}
 
-          <form action={createPlanForDate} className="flex items-center gap-2">
+          <ActionForm action={createPlanForDate} className="flex items-center gap-2">
             <label htmlFor="plan-date" className="text-sm text-muted">
               or week of
             </label>
@@ -91,7 +92,7 @@ export default async function PlansPage() {
             <button type="submit" className="btn-secondary">
               Go
             </button>
-          </form>
+          </ActionForm>
         </div>
       </section>
 

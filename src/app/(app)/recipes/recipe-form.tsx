@@ -37,6 +37,7 @@ export default function RecipeForm({
   submitLabel: string;
   cancelHref: string;
 }) {
+  const [details, setDetails] = useState(defaults);
   const [state, formAction] = useActionState<RecipeFormState, FormData>(action, {});
   const [rows, setRows] = useState<IngredientRow[]>(
     defaults.ingredients.length ? defaults.ingredients : [EMPTY_ROW],
@@ -71,7 +72,8 @@ export default function RecipeForm({
             id="name"
             name="name"
             required
-            defaultValue={defaults.name}
+            value={details.name}
+            onChange={(event) => setDetails((previous) => ({ ...previous, name: event.target.value }))}
             className="input"
             placeholder="Sheet pan chicken thighs"
           />
@@ -83,7 +85,8 @@ export default function RecipeForm({
           <input
             id="description"
             name="description"
-            defaultValue={defaults.description}
+            value={details.description}
+            onChange={(event) => setDetails((previous) => ({ ...previous, description: event.target.value }))}
             className="input"
             placeholder="Weeknight standby, one pan"
           />
@@ -97,7 +100,8 @@ export default function RecipeForm({
               id="servings"
               name="servings"
               inputMode="numeric"
-              defaultValue={defaults.servings}
+              value={details.servings}
+            onChange={(event) => setDetails((previous) => ({ ...previous, servings: event.target.value }))}
               className="input"
             />
           </div>
@@ -109,7 +113,8 @@ export default function RecipeForm({
               id="prepMinutes"
               name="prepMinutes"
               inputMode="numeric"
-              defaultValue={defaults.prepMinutes}
+              value={details.prepMinutes}
+            onChange={(event) => setDetails((previous) => ({ ...previous, prepMinutes: event.target.value }))}
               className="input"
             />
           </div>
@@ -121,7 +126,8 @@ export default function RecipeForm({
               id="sourceUrl"
               name="sourceUrl"
               type="url"
-              defaultValue={defaults.sourceUrl}
+              value={details.sourceUrl}
+            onChange={(event) => setDetails((previous) => ({ ...previous, sourceUrl: event.target.value }))}
               className="input"
               placeholder="https://"
             />
@@ -197,7 +203,8 @@ export default function RecipeForm({
           id="notes"
           name="notes"
           rows={4}
-          defaultValue={defaults.notes}
+          value={details.notes}
+            onChange={(event) => setDetails((previous) => ({ ...previous, notes: event.target.value }))}
           className="input resize-y"
           placeholder="Double the sauce. Kids skip the peppers."
         />

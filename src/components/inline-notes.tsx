@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import ActionForm from "./action-form";
+import type { MutationResult } from "@/lib/form";
 import { SubmitButton } from "./form";
 
 /** A notes card that reads as text and turns into a textarea on demand. */
@@ -17,7 +19,7 @@ export default function InlineNotes({
   placeholder: string;
   emptyText?: string;
   rows?: number;
-  action: (formData: FormData) => Promise<void>;
+  action: (formData: FormData) => Promise<MutationResult | void>;
 }) {
   const [editing, setEditing] = useState(false);
 
@@ -37,10 +39,11 @@ export default function InlineNotes({
       </div>
 
       {editing ? (
-        <form
+        <ActionForm
           action={async (formData) => {
-            await action(formData);
-            setEditing(false);
+            const result = await action(formData);
+            if (!result?.error) setEditing(false);
+            return result;
           }}
           className="space-y-3"
         >
@@ -58,7 +61,7 @@ export default function InlineNotes({
               Cancel
             </button>
           </div>
-        </form>
+        </ActionForm>
       ) : notes ? (
         <p className="whitespace-pre-wrap text-sm">{notes}</p>
       ) : (

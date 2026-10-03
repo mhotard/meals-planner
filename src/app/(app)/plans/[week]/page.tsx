@@ -1,3 +1,4 @@
+import ActionForm from "@/components/action-form";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/server/auth";
@@ -43,11 +44,11 @@ export default async function PlanPage({ params }: PageProps<"/plans/[week]">) {
         <div className="card p-10 text-center">
           <h1 className="text-xl font-semibold">Week of {formatWeekRange(week)}</h1>
           <p className="mt-2 text-sm text-muted">No plan for this week yet.</p>
-          <form action={createPlan.bind(null, week)} className="mt-4">
+          <ActionForm action={createPlan.bind(null, week)} className="mt-4">
             <button type="submit" className="btn-primary">
               Start planning this week
             </button>
-          </form>
+          </ActionForm>
         </div>
       </div>
     );
@@ -155,7 +156,7 @@ export default async function PlanPage({ params }: PageProps<"/plans/[week]">) {
                         {entry.customLabel}
                       </span>
                     )}
-                    <form
+                    <ActionForm
                       action={removePlanEntry.bind(null, week, entry.id)}
                       className="no-print"
                     >
@@ -166,7 +167,7 @@ export default async function PlanPage({ params }: PageProps<"/plans/[week]">) {
                       >
                         ✕
                       </button>
-                    </form>
+                    </ActionForm>
                   </div>
                 ))}
 
@@ -178,11 +179,11 @@ export default async function PlanPage({ params }: PageProps<"/plans/[week]">) {
                     plannedRecipeIds={plannedRecipeIds}
                     onPickRecipe={async (recipeId: number) => {
                       "use server";
-                      await addRecipeToDay(week, dayIndex, recipeId);
+                      return addRecipeToDay(week, dayIndex, recipeId);
                     }}
                     onPickCustom={async (label: string) => {
                       "use server";
-                      await addCustomToDay(week, dayIndex, label);
+                      return addCustomToDay(week, dayIndex, label);
                     }}
                   />
                 </div>
@@ -208,11 +209,11 @@ export default async function PlanPage({ params }: PageProps<"/plans/[week]">) {
             Adds a cook-log entry for every recipe on this plan, on its planned day.
           </p>
         </div>
-        <form action={logWeekAsCooked.bind(null, week)}>
+        <ActionForm action={logWeekAsCooked.bind(null, week)}>
           <button type="submit" className="btn-secondary">
             Log all meals
           </button>
-        </form>
+        </ActionForm>
       </div>
     </div>
   );
