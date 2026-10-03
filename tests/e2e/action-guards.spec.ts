@@ -1,5 +1,5 @@
 import { test, expect, login } from "./fixture";
-import { callAction, form } from "./actions";
+import { callAction, form, actionResult } from "./actions";
 
 const validRecipe = {name: "Crafted QA", servings: "4", prepMinutes: "20", sourceUrl: "https://example.invalid/qa", "ing-name": "New ingredient QA", "ing-quantity": "1 1/2", "ing-unit": "cup", "ing-note": ""};
 const week = "2030-02-04";
@@ -27,6 +27,13 @@ test("valid exported actions preserve custom count units and stable shopping sta
 test("crafted invalid exported actions reject without any database writes", async ({ page, harness }) => {
   await login(page, harness);
   const before = await harness.snapshot();
+  await page.goto(harness.url + "/recipes/new");
+  await page.getByLabel("Recipe name", {exact: true}).fill("Invalid form QA");
+  await page.getByLabel("Ingredient", {exact: true}).fill("Invalid form ingredient QA");
+  await page.getByLabel("Quantity", {exact: true}).fill("1/0");
+  await page.getByRole("button", {name: "Save recipe", exact: true}).click();
+  await expect(page.getByRole("alert")).toBeVisible();
+  await expect(page.getByLabel("Quantity", {exact: true})).toHaveValue("1/0");
   // Server restart invalidates compilation; reload features before resolving IDs.
   for (const path of ["/recipes/new", "/recipes/1", "/pantry", "/settings", `/plans/${week}`, `/plans/${week}/shopping`]) await page.goto(harness.url + path);
   const cases: [string, unknown[]][] = [
@@ -66,7 +73,9 @@ test("crafted invalid exported actions reject without any database writes", asyn
   for (const [name, args] of cases) {
     const response = await callAction(page.request, harness.url, name, args);
     expect(response.status(), name).toBe(200);
-    expect(await response.text(), `${name} validation result`).toContain('"error"');
+    const result = await actionResult(response);
+    expect(typeof result.error, `${name} validation result`).toBe("string");
+    expect(result.error, `${name} validation result`).not.toBe("");
   }
   expect(await harness.snapshot()).toBe(before);
 });

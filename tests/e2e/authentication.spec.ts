@@ -1,5 +1,5 @@
 import { test, expect, login } from "./fixture";
-import { callAction, form } from "./actions";
+import { callAction, form, actionResult } from "./actions";
 
 test("protected routes, redirect destinations, login and logout", async ({ page, harness }) => {
   for (const path of ["/", "/recipes", "/plans", "/pantry", "/settings"]) {
@@ -17,6 +17,7 @@ test("protected routes, redirect destinations, login and logout", async ({ page,
   }
   await login(page, harness, "/recipes?search=qa");
   await page.getByTitle(new RegExp("click to sign out")).click();
+  await expect(page).toHaveURL(harness.url + "/login");
   await page.goto(harness.url + "/recipes");
   await expect(page).toHaveURL(/\/login\?next=/);
 });
@@ -40,7 +41,7 @@ test("Settings invalid values do not write; password changes revoke both session
     for (const [name, data] of invalid) {
       const response = await callAction(page.request, harness.url, name, [{}, data]);
       expect(response.status()).toBe(200);
-      expect(await response.text()).toContain('"error"');
+      expect(typeof (await actionResult(response)).error).toBe("string");
     }
     expect(await harness.snapshot()).toBe(before);
     await page.goto(harness.url + "/settings");
@@ -60,4 +61,40 @@ test("Settings invalid values do not write; password changes revoke both session
     await page.goto(harness.url + "/recipes");
     await expect(page).toHaveURL(harness.url + "/recipes");
   } finally { await second.close(); }
+});
+
+test("login throttling is durable and returns the same error for missing accounts", async ({page,harness}) => {
+  const before = await harness.snapshot();
+  await page.goto(harness.url+"/login");
+  let generic: unknown;
+  for (let index=0; index<10; index++) {
+    const response = await callAction(page.request,harness.url,"login",[{},form({email:harness.email,password:harness.password+"wrong",next:"/recipes"})]);
+    const result = await actionResult(response);
+    expect(typeof result.error).toBe("string");
+    if (index===0) generic=result.error;
+    expect(result.error).toBe(generic);
+  }
+  expect(await harness.snapshot()).toBe(before);
+  await page.goto(harness.url+"/login");
+  const blocked = await callAction(page.request,harness.url,"login",[{},form({email:harness.email,password:harness.password,next:"/recipes"})]);
+  expect((await actionResult(blocked)).error).toBe(generic);
+  const missing = await callAction(page.request,harness.url,"login",[{},form({email:"missing@example.invalid",password:harness.password,next:"/recipes"})]);
+  expect((await actionResult(missing)).error).toBe(generic);
+  expect(await harness.snapshot()).toBe(before);
+});
+
+test("actual account CLI reset revokes prior sessions and allows the new password", async ({page,browser,harness}) => {
+  await login(page,harness,"/recipes");
+  const second=await browser.newContext();
+  try {
+    const other=await second.newPage();
+    await login(other,harness,"/recipes");
+    const replacement=await harness.resetPassword();
+    await page.goto(harness.url+"/recipes");
+    await expect(page).toHaveURL(harness.url+"/login");
+    await other.goto(harness.url+"/recipes");
+    await expect(other).toHaveURL(harness.url+"/login");
+    await login(page,{...harness,password:replacement},"/recipes");
+    await expect(page.getByRole("heading",{name:"Recipes",exact:true})).toBeVisible();
+  } finally {await second.close();}
 });

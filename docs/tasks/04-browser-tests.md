@@ -53,7 +53,7 @@ verification must run on the integrated 01–03 candidate.
 - Dependency commit: `bc55ad0f08778e3c24567261c8b9cc0b49ce9a11`.
   Package/lockfile grant released back to coordinator; coordinator owns the
   subsequent Next/security update. No application/schema edits in this packet.
-- Environment: macOS arm64, Node 22+, PGlite in per-test OS temporary directories,
+- Environment: macOS arm64, Node `v25.5.0` (Node 22 CI still assigned to 05), PGlite in per-test OS temporary directories,
   synthetic random credentials, Chromium headless 153.0.8010.12/Playwright v1243,
   development Webpack loopback HTTP. No household database was opened.
 - `npm ci`: passed, 386 baseline dependencies installed.
@@ -80,3 +80,54 @@ Suite inventory, isolation contract, commands, compiler settings, artifact
 policy, and coverage limits: `tests/e2e/README.md`. Only failure PNG screenshots
 in ignored `test-results/` may be uploaded; traces/session state are disabled.
 HTTPS production cookies and OS print preview remain unverified (task 06).
+
+### Integrated 01/02 targeted evidence
+
+Application sources tested after merging coordinator candidate `d3eef85` into
+browser branch at `cefc3b8`. Next `16.3.8`, Playwright `1.63.0`, desktop
+1280×900, development Webpack, loopback HTTP, per-test temporary PGlite. Source
+fixes for custom unit inherited properties still awaited at this point.
+
+- `npm ci`: passed (389 packages added, 390 audited). No package files changed.
+- `npx playwright test tests/e2e/action-guards.spec.ts tests/e2e/authentication.spec.ts --grep-invert 'custom count units'`:
+  first integrated run 4 passed/3 failed. Signed-out, invalid, expired, and
+  correctly signed nonexistent-user requests passed no-write checks for all
+  27 mutation exports. Failures were in the harness, not application defects:
+  an incomplete copied Flight wire format supplied empty FormData; an assertion
+  matched page error-boundary `error: "$undefined"` metadata; logout navigation
+  began before logout completed; dev HMR after snapshot restart interrupted login.
+- Replaced copied argument encoding with installed React `encodeReply` (this
+  Next patch uses `_1_name` FormData prefixes), parsed only the Flight root
+  action promise, waited for logout, and disconnected pages before restart.
+  Snapshot cleanup handles `signalCode` and restores environment in nested
+  finally blocks. Temporary isolation spec was removed after diagnosis.
+- `npx playwright test tests/e2e/action-guards.spec.ts --grep 'crafted invalid'`:
+  corrected run passed 1 test (25.0s); concrete validation errors and unchanged
+  domain/account digests for crafted arrays, quantities, integer metadata,
+  source links, dates, rating, enum/day/ID values, patches and cross-plan IDs.
+  Includes an actual Flight `undefined` update ID with otherwise valid recipe data.
+- `npx playwright test tests/e2e/authentication.spec.ts tests/e2e/household.spec.ts --grep 'Settings|protected routes|throttling|recipe create|forms display'`:
+  4 passed/1 failed (2.0m). Passed routes/redirect/login/logout (21.6s), real
+  Settings invalid inputs/no-write, two-session password revocation/new login
+  (34.7s), durable limiter after restart/generic missing-account error (25.4s),
+  and recipe invalid-quantity error/preservation/correction/CRUD (14.6s).
+  Weekly form quantity retention/correction and plan error passed; the final
+  assertion expected a native date input to display an impossible date. Native
+  date sanitization correctly clears that value; this was an invalid test expectation.
+- `npx playwright test tests/e2e/household.spec.ts --grep 'weekly item retains'`:
+  corrected test passed (13.7s), including pantry preservation and valid fraction,
+  impossible-date server feedback with browser constraint bypass, and valid
+  date correction creating the containing Monday plan.
+- `npm run check`: passed on integrated sources, lint/fresh route types/TypeScript
+  plus 23 unit/integration tests (10.99s test runner). Later test-only CLI
+  reset addition requires another final check before acceptance.
+
+- `npx playwright test tests/e2e/authentication.spec.ts --grep 'actual account CLI'`:
+  passed 1 test (20.0s). Harness stopped Next, ran the actual
+  `node --import tsx scripts/seed-user.ts` with generated synthetic arguments and
+  explicit disposable environment, restarted Next, rejected both old sessions,
+  and permitted the replacement password. Credentials were never printed.
+
+Pending: corrected-encoder unauthorized batch rerun, constructor custom-unit
+positive action test after latest source integration, then full suite twice and
+check/build on integrated task 03. Final production HTTPS remains task 06.

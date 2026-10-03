@@ -108,6 +108,12 @@ test("recipe create, edit, notes, cook history, search and delete", async ({ pag
   await page.getByLabel("Ingredient", {exact: true}).fill("Pasta QA");
   await page.getByLabel("Quantity", {exact: true}).fill("1 1/2");
   await page.getByLabel("Unit", {exact: true}).selectOption("cup");
+  await page.getByLabel("Quantity", {exact: true}).fill("1/0");
+  await page.getByRole("button", {name: "Save recipe", exact: true}).click();
+  await expect(page.getByRole("alert")).toBeVisible();
+  await expect(page.getByLabel("Recipe name", {exact: true})).toHaveValue("Pasta QA");
+  await expect(page.getByLabel("Quantity", {exact: true})).toHaveValue("1/0");
+  await page.getByLabel("Quantity", {exact: true}).fill("1 1/2");
   await page.getByRole("button", {name: "Save recipe", exact: true}).click();
   await expect(page.getByRole("heading", {name: "Pasta QA", exact: true})).toBeVisible();
   const recipeUrl = page.url();
@@ -137,4 +143,33 @@ test("recipe create, edit, notes, cook history, search and delete", async ({ pag
   await expect(page).toHaveURL(`${harness.url}/recipes`);
   await page.goto(recipeUrl);
   await expect(page.getByRole("heading", {name: "404", exact: true})).toBeVisible();
+});
+
+test("weekly item retains rejected inputs; plan form displays crafted date errors and allows correction", async ({page,harness}) => {
+  await login(page,harness,"/pantry");
+  const weeklyForm = page.locator("form").filter({has:page.getByLabel("Item name",{exact:true})});
+  await weeklyForm.getByLabel("Item name",{exact:true}).fill("Weekly form QA");
+  await weeklyForm.getByLabel("Quantity",{exact:true}).fill("1/0");
+  await weeklyForm.getByRole("button",{name:"Add",exact:true}).click();
+  await expect(weeklyForm.getByRole("alert")).toBeVisible();
+  await expect(weeklyForm.getByLabel("Item name",{exact:true})).toHaveValue("Weekly form QA");
+  await expect(weeklyForm.getByLabel("Quantity",{exact:true})).toHaveValue("1/0");
+  await weeklyForm.getByLabel("Quantity",{exact:true}).fill("1 1/2");
+  await weeklyForm.getByRole("button",{name:"Add",exact:true}).click();
+  await expect(page.getByLabel("Weekly quantity for Weekly form QA",{exact:true})).toHaveValue("1.5");
+  await page.goto(harness.url+"/plans");
+  const date = page.getByLabel("or week of",{exact:true});
+  // Native date inputs cannot emit impossible dates; bypass that browser guard
+  // to exercise the server error rendered by this exact user-facing form.
+  await date.evaluate((element) => element.setAttribute("type","text"));
+  await date.fill("2030-02-30");
+  await page.getByRole("button",{name:"Go",exact:true}).click();
+  await expect(page.getByRole("alert")).toBeVisible();
+  // React restores the native date control after the response; browsers cannot
+  // display an impossible date in that control. The visible server error is
+  // the regression assertion, then a normal supported date repairs the form.
+  await date.evaluate((element) => element.setAttribute("type","date"));
+  await date.fill("2030-03-06");
+  await page.getByRole("button",{name:"Go",exact:true}).click();
+  await expect(page).toHaveURL(`${harness.url}/plans/2030-03-04`);
 });
