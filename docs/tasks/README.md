@@ -13,7 +13,7 @@ Only the coordinator changes this board; workers update their own packets.
 | 00 | [Baseline](00-baseline.md) | accepted | Coordinator / codex/release-baseline | None | 868d226; fresh install, 11/11 checks, Webpack build, disposable setup/login |
 | 01 | [Authentication](01-authentication.md) | accepted | auth / codex/01-authentication | 00 | 4aecd2a; 27 actions × four auth contexts no writes; Settings/CLI revocation and limiter pass |
 | 02 | [Validation](02-validation.md) | accepted | validation / codex/02-validation | 00 | 4aecd2a; 37 crafted no-write cases, visible errors/corrections, custom-unit persistence pass |
-| 03 | [Transactions](03-transactions.md) | in_progress | auth → persistence / codex/03-transactions | 02 | ff5eae3; /private/tmp/meals-task03 |
+| 03 | [Transactions](03-transactions.md) | accepted | auth → persistence / codex/03-transactions | 02 | b9845c8;31checks, real rollback/CLI/build and actual recipe flow pass |
 | 04 | [Browser tests](04-browser-tests.md) | in_progress | browser / codex/04-browser-tests | Scaffold: 00; acceptance: 01–03 | Baseline 868d226; /private/tmp/meals-task04 |
 | 05 | [Release candidate / CI](05-release-candidate.md) | queued | Unassigned | 01–04 | Not run |
 | 06 | [Staging / recovery rehearsal](06-staging.md) | queued | Unassigned | 05/G1 | Not run |
@@ -34,7 +34,7 @@ Historical passes are not acceptance of a new implementation.
 | --- | --- | --- |
 | Package/lockfile and root tool configuration | Coordinator /root | Explicit temporary grant to 04 or 05 |
 | Schema and generated migrations | Coordinator (released by 01) | One task at a time, using latest integrated schema |
-| Recipe actions and ingredient persistence | /root/auth (03) | Exclusive until03 review/integration |
+| Recipe actions and ingredient persistence | Coordinator (03 released) | Future fixes assigned explicitly |
 | Deployment/provider mutations | Unassigned | 06 then 07; named environment required |
 
 ## Pending execution inputs
@@ -60,7 +60,7 @@ credentials, session storage, real exports, and household data out of task notes
 ## Active ownership grants
 
 01 and02 grants are released after acceptance; future fixes are assigned explicitly.
-03 owns recipe actions, ingredient/recipe persistence, related integration tests and packet03.
+03 grant released after acceptance; coordinator assigns any follow-up source fix.
 04 owns tests/e2e, playwright config, browser fixture scripts and ignore rules. Package/lockfile grant released after bc55ad0; coordinator owns dependency patches.
 Coordinator owns board/roadmap/CI and integration. Initial worktrees were based on
 868d226;03 starts from accepted integratedff5eae3, never remote main.
@@ -74,3 +74,7 @@ src/db/ingredients.ts, one narrow CLI-compatible recipe persistence helper,
 related integration tests and task03 packet in /private/tmp/meals-task03.
 Baselineff5eae305d33ddf5549335bfdbadb15b29d5c5e4; no schema/root configuration
 grant. Request any necessary ownership expansion before edits. 02 grant released.
+
+October3 /root accepted03 on b9845c8 after independent review,31checks,
+Webpack production build, fail-closed smoke and actual recipe create/edit/reload.
+Next:04fullsuite twice on samecandidate pluscleancheckout; then05remoteCI.

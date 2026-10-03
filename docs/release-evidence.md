@@ -88,3 +88,9 @@ clipboard exports and print CSS. Every test created and removed a disposable
 PGlite directory and synthetic account. No production HTTPS or OS print-preview
 claim follows from this local coverage. Additional worker action/authentication
 and visible-invalid-input evidence is under review before 01/02 acceptance.
+
+Task03 accepted on integrated b9845c8:31/31check, network-enabled
+DATABASE_URL= PGLITE_DIR=/private/tmp/meals-release-build npm run build -- --webpack
+exit0, npm run test:production-config exit0, and actual recipe flow1/1passed.
+Independent persistence review clean; exact evidence/driver limits in task03.
+Task04 final stability/freshcheckout and task05exact-SHA CI remain pending.

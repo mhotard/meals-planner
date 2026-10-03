@@ -1,6 +1,6 @@
 # 03 — Make recipe saves atomic
 
-Status: review. Owner: persistence worker `/root/auth`.
+Status: accepted. Owner: persistence worker `/root/auth`.
 Dependencies: accepted 01/02 on integrated source `4aecd2a4f615be2543453e096ea0ac8d6423a179`.
 Branch: `codex/03-transactions`; worktree: `/private/tmp/meals-task03`.
 Baseline: `ff5eae305d33ddf5549335bfdbadb15b29d5c5e4`.
@@ -179,3 +179,25 @@ inferred from helper tests.
 Suggested shared architecture documentation update: recipe saves now use
 `src/db/recipes.ts` for the full atomic save; ingredient query helpers accept the
 narrow connection/transaction surface. Shared docs remain coordinator-owned.
+
+### Coordinator acceptance — October 3, 2026
+
+Accepted03.1–03.4 on integrated source b9845c8 after independent read-only review
+by /root/validation (no defects) and coordinator execution. Implementation
+ff148edc is integrated as6a47571, evidence e5b58d9 asb9845c8; the only integration
+conflict was packet status/ownership, resolved with the complete worker handoff.
+
+Environment: macOSarm64, Node25.5.0/npm11.8.0/Next16.3.8; synthetic fixtures,
+temporary PGlite only. No schema change, hosted or household database access.
+
+| Exact command | Result on b9845c8 |
+| --- | --- |
+| npm run check | exit0; lint, fresh route types, TypeScript and31/31 tests |
+| DATABASE_URL= PGLITE_DIR=/private/tmp/meals-release-build npm run build -- --webpack | approved network; exit0, production compilation/all routes |
+| npm run test:production-config | exit0; missing DB, missing/short signing secret eachHTTP500, no embeddedDB |
+| npm run test:e2e -- tests/e2e/household.spec.ts --grep 'recipe create' | exit0; Chromium1/1 (18.0s), invalid quantity/correction, actual create/edit/notes/cook history/reload/search/delete |
+
+Worker CLI migrate/seed/reseed evidence above remains valid on identical helper
+source. Task04 now tests the whole integrated suite twice, with a clean checkout
+run. Hosted independent connections and database recovery remain06/G2 pending;
+local acceptance does not claim hosted transaction/parity evidence.

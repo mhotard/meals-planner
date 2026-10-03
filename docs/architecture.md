@@ -31,12 +31,14 @@ meals-planner/
 │   ├── hooks/              # React hooks, currently clipboard behavior
 │   ├── lib/                # Pure types, dates, units, grouping, exports
 │   ├── server/             # Auth, request origin, database-backed queries
-│   ├── db/                 # Drizzle schema, drivers, ingredient lookup helpers
+│   ├── db/                 # Schema, drivers, ingredient helpers, atomic recipe saves
 │   └── proxy.ts            # Early route protection
 ├── scripts/                # Environment loader, migrations, users, demo data
 ├── tests/
 │   ├── unit/               # Date/week, quantity, grouping, export behavior
-│   └── integration/        # Isolated database migration and persistence checks
+│   ├── integration/        # Isolated database migration and persistence checks
+│   ├── e2e/                # Synthetic household browser/action regressions
+│   └── smoke/              # Production configuration failure checks
 ├── drizzle/                # SQL migration history and Drizzle metadata
 └── public/                 # Static assets
 ```
@@ -71,8 +73,15 @@ modules or database drivers. Prefer importing DTO types from `src/lib`.
 `src/db/index.ts` is the server-only application entry point. It caches the
 connection promise across development hot reloads. CLI scripts and integration
 tests instead import `src/db/create.ts`, own the connection, and close it when
-finished. `src/db/ingredients.ts` accepts a database explicitly so both scripts
-and the app can use the same case-insensitive lookup rules.
+finished. `src/db/ingredients.ts` accepts the narrow select/insert surface of a
+database or transaction so scripts and the app share case-insensitive lookup
+rules. Conflict-safe insert/lookup preserves existing ingredient spelling and
+purchasing rules. `src/db/recipes.ts` consumes a fully validated recipe and an
+explicit create/update target; a READ COMMITTED transaction covers the recipe,
+line replacement, canonical ingredients and all new lines. Missing update
+targets return a controlled error. Database errors roll back and propagate;
+cache invalidation and redirects follow the committed save. Rolled-back inserts
+can still consume sequence numbers; IDs need not be contiguous.
 
 ## Request and mutation flow
 
