@@ -51,3 +51,9 @@ and smoke verification. App changes go back to owners and through affected gates
 Results: not run. Return URL/SHA, nonsecret configuration inventory, data/migration
 report, smoke results, operator/runbooks, known limits, and feedback plan.
 G3 acceptance: pending.
+
+Preparation October3: docs/user-guide.md describes current tested household
+flows and account/share behavior; README links the draft deployment/operations
+runbooks and explicitly states no verified production URL. This is preparation,
+not production release or operator acceptance. Actual data choice, HTTPS URL,
+deployed SHA, smoke, backup/restore/rollback and named handoff remain pending.

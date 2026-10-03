@@ -59,21 +59,19 @@ compiled to WebAssembly, stored in `.pglite/`. Nothing to install.
 
 ## Deploying
 
-The app runs on any Postgres. For a free setup:
+Hosting is pending; no production URL has been verified. Follow the
+[deployment runbook](docs/deployment.md) and [operations runbook](docs/operations.md)
+for the reviewed candidate, separate staging/production environments, account
+and budget choices, migrations, backup/restore rehearsal and HTTPS smoke checks.
 
-1. Create a Postgres database (e.g. Neon) and copy its connection string.
-2. Deploy this repo to Vercel.
-3. Set two environment variables in Vercel:
-   - `DATABASE_URL` — the connection string
-   - `AUTH_SECRET` — `openssl rand -base64 32`
-4. Run the migration and create the logins against production:
-
-   ```bash
-   DATABASE_URL="postgres://…" npm run db:migrate
-   DATABASE_URL="postgres://…" npm run user you@example.com "Your Name" a-good-password
-   ```
+Production requires a hosted `DATABASE_URL` and a securely generated
+`AUTH_SECRET` of at least 32 UTF-8 bytes (for example `openssl rand -base64 32`).
+It rejects missing configuration instead of opening local PGlite. Store secrets
+in the selected provider's scoped settings. Apply committed migrations once
+through the named operator; builds and app startup do not migrate the database.
 
 New household members can also be added from **Settings** once you're signed in.
+The [household guide](docs/user-guide.md) explains recipes, weekly plans and shopping.
 
 ## Scripts
 
@@ -82,6 +80,8 @@ New household members can also be added from **Settings** once you're signed in.
 | `npm run dev` | Dev server |
 | `npm run build` / `npm start` | Production build and serve |
 | `npm run check` | Lint, fresh route types, TypeScript, and isolated tests |
+| `npm run test:e2e` | Chromium household/action tests with fresh synthetic databases |
+| `npm run test:production-config` | After a build, verify missing production config fails closed |
 | `npm run lint` / `npm run typecheck` / `npm test` | Run individual checks |
 | `npm run db:generate` | Generate a SQL migration after editing `src/db/schema.ts` |
 | `npm run db:migrate` | Apply migrations |
