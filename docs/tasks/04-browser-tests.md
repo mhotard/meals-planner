@@ -128,6 +128,27 @@ fixes for custom unit inherited properties still awaited at this point.
   explicit disposable environment, restarted Next, rejected both old sessions,
   and permitted the replacement password. Credentials were never printed.
 
-Pending: corrected-encoder unauthorized batch rerun, constructor custom-unit
-positive action test after latest source integration, then full suite twice and
-check/build on integrated task 03. Final production HTTPS remains task 06.
+- Latest source merge: `975423bd1fc4ade6f6b609ab269414d07c4f1336` includes
+  coordinator source `7e8fd7553ae7103700ffd017dc18a6029adced55` and custom-unit fix.
+  Transport/cleanup/auth/form regression commit:
+  `6ef8d8952a93ab640b33b90b26f1227c04315f2c`; final positive-result assertion fix:
+  `03443836cadf5b20150be43811f54fd34ecdc965`.
+- `npx playwright test tests/e2e/action-guards.spec.ts --grep 'custom count units|exported action requests'`:
+  corrected native encoder auth batch passed all four contexts, with 27 actual
+  mutation requests in each: signed-out (30.5s), invalid token (23.7s), expired
+  token (26.1s), and correctly signed nonexistent-user token (27.4s). Unchanged
+  household/account digests proved no writes. The initial custom-count assertion
+  still checked whole response metadata; changed the last such check to actual
+  root action result and audited the suite with `rg` (none remain).
+- `npx playwright test tests/e2e/action-guards.spec.ts --grep 'custom count units'`:
+  passed 1 test (15.4s) on `03443836`, actual recipe creation with `constructor`
+  unit, actual plan action, correct `2 constructor` shopping line without
+  NaN/undefined, and checked-state persistence after reload.
+- Crafted invalid-action batch contains 37 cases, verified from the spec's AST.
+  All targeted local browser checks needed by tasks 01/02 now pass; coordinator
+  acceptance remains separate. No application defect was attributed to the
+  prior wire-format or response-metadata harness failures.
+
+Pending: full suite twice and check/build on integrated task 03, then coordinator
+review. Browser environment remains Node v25.5.0/macOS arm64; Node 22/Linux CI
+evidence belongs to 05. Production HTTPS and OS print preview remain task 06.
