@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { SESSION_COOKIE, verifySession } from "@/lib/auth";
+import { SESSION_COOKIE, verifySession } from "@/server/auth";
 
 /** Everything is private except the login page and the read-only share links. */
 const PUBLIC_PREFIXES = ["/login", "/share/"];

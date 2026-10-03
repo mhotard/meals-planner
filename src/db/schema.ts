@@ -124,7 +124,7 @@ export const planExtraItems = pgTable("plan_extra_items", {
 
 /**
  * Per-week overrides on the computed shopping list. `itemKey` is the stable id
- * the shopping-list builder assigns to each line (see lib/shopping.ts).
+ * the shopping-list builder assigns to each line (see server/shopping.ts).
  */
 export const planItemStates = pgTable(
   "plan_item_states",

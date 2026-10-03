@@ -1,6 +1,6 @@
 "use client";
 
-import { useCopy } from "@/lib/use-copy";
+import { useCopy } from "@/hooks/use-copy";
 
 type Format = { id: string; label: string; hint: string; text: string };
 

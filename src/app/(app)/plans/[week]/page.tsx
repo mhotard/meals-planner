@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { requireUser } from "@/lib/auth";
-import { getBaseUrl } from "@/lib/base-url";
-import { getPlanByWeek, getPlanEntries, groupByDay } from "@/lib/plans";
-import { listRecipes } from "@/lib/recipes";
+import { requireUser } from "@/server/auth";
+import { getBaseUrl } from "@/server/base-url";
+import { getPlanByWeek, getPlanEntries } from "@/server/plans";
+import { groupByDay } from "@/lib/plans";
+import { listRecipes } from "@/server/recipes";
 import {
   DAY_NAMES,
   addDays,

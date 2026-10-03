@@ -1,6 +1,6 @@
 "use client";
 
-import { useCopy } from "@/lib/use-copy";
+import { useCopy } from "@/hooks/use-copy";
 
 export default function ShareLink({ url, path }: { url: string; path: string }) {
   const { copied, failedText, copy } = useCopy();

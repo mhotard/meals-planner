@@ -3,9 +3,10 @@
  *   npx tsx scripts/seed-demo.ts
  * Safe to re-run: it skips recipes that already exist by name.
  */
+import "./env";
 import { sql } from "drizzle-orm";
 import { createConnection } from "../src/db/create";
-import { findIngredientByName } from "../src/lib/ingredients";
+import { findIngredientByName } from "../src/db/ingredients";
 import * as schema from "../src/db/schema";
 import type { Category } from "../src/lib/categories";
 

@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { requireUser } from "@/lib/auth";
-import { listIngredients } from "@/lib/recipes";
+import { requireUser } from "@/server/auth";
+import { listIngredients } from "@/server/recipes";
 import RecipeForm from "../recipe-form";
 import { createRecipe } from "../actions";
 

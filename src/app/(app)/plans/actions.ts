@@ -4,11 +4,11 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { and, eq, sql } from "drizzle-orm";
 import { getDb, schema, type DB } from "@/db";
-import { requireUser, type SessionUser } from "@/lib/auth";
+import { requireUser, type SessionUser } from "@/server/auth";
 import { toCategory } from "@/lib/categories";
 import { isValidWeekStart, parseISODate, weekStartOf } from "@/lib/dates";
 import { field, numericOrNull, optionalField } from "@/lib/form";
-import { newShareToken } from "@/lib/plans";
+import { newShareToken } from "@/server/plans";
 import { normalizeUnit } from "@/lib/units";
 
 type PlanContext = { db: DB; planId: number; me: SessionUser };

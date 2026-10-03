@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { requireUser } from "@/lib/auth";
-import { getRecipe } from "@/lib/recipes";
+import { requireUser } from "@/server/auth";
+import { getRecipe } from "@/server/recipes";
 import { formatAmount } from "@/lib/units";
 import { SUPPLY_BADGES } from "@/lib/supply";
 import { formatDate, relativeDays, toISODate } from "@/lib/dates";

@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getPlanByToken, getPlanEntries, groupByDay } from "@/lib/plans";
-import { buildShoppingList, groupByCategory, partitionList } from "@/lib/shopping";
+import { getPlanByToken, getPlanEntries } from "@/server/plans";
+import { groupByDay } from "@/lib/plans";
+import { buildShoppingList } from "@/server/shopping";
+import { groupByCategory, partitionList } from "@/lib/shopping";
 import { DAY_NAMES, addDays, formatShortDate, formatWeekRange } from "@/lib/dates";
 import { planForTrello, shoppingAsText, shoppingForTrello } from "@/lib/export";
 import ShoppingList from "@/components/shopping-list";

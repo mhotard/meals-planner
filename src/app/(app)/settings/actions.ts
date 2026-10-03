@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { getDb, schema } from "@/db";
-import { requireUser } from "@/lib/auth";
+import { requireUser } from "@/server/auth";
 import { field } from "@/lib/form";
 
 export type FormResult = { error?: string; ok?: string };

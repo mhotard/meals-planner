@@ -1,4 +1,5 @@
 /** Applies ./drizzle SQL migrations to whichever database is configured. */
+import "./env";
 import { createConnection } from "../src/db/create";
 
 async function main() {

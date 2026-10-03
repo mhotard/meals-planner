@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { requireUser } from "@/lib/auth";
-import { getRecipe, listIngredients } from "@/lib/recipes";
+import { requireUser } from "@/server/auth";
+import { getRecipe, listIngredients } from "@/server/recipes";
 import RecipeForm from "../../recipe-form";
 import { updateRecipe } from "../../actions";
 import DeleteRecipeButton from "./delete-button";

@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { requireUser } from "@/lib/auth";
-import { listPlans } from "@/lib/plans";
+import { requireUser } from "@/server/auth";
+import { listPlans } from "@/server/plans";
 import { addDays, formatWeekRange, toISODate, weekStartOf } from "@/lib/dates";
 import { createPlan, createPlanForDate } from "./actions";
 

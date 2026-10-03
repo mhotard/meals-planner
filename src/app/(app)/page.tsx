@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { requireUser } from "@/lib/auth";
-import { getPlanByWeek, getPlanEntries, groupByDay } from "@/lib/plans";
-import { recentlyCooked, staleFavorites } from "@/lib/recipes";
+import { requireUser } from "@/server/auth";
+import { getPlanByWeek, getPlanEntries } from "@/server/plans";
+import { groupByDay } from "@/lib/plans";
+import { recentlyCooked, staleFavorites } from "@/server/recipes";
 import {
   DAY_NAMES,
   addDays,

@@ -4,9 +4,9 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
-import { requireUser } from "@/lib/auth";
+import { requireUser } from "@/server/auth";
 import { field, numericOrNull, optionalField, parseQuantity } from "@/lib/form";
-import { findOrCreateIngredient } from "@/lib/ingredients";
+import { findOrCreateIngredient } from "@/db/ingredients";
 import { normalizeUnit } from "@/lib/units";
 
 export type RecipeFormState = { error?: string };

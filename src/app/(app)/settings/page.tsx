@@ -1,5 +1,5 @@
-import { requireUser } from "@/lib/auth";
-import { listMembers } from "@/lib/users";
+import { requireUser } from "@/server/auth";
+import { listMembers } from "@/server/users";
 import { AddMemberForm, PasswordForm } from "./forms";
 
 export default async function SettingsPage() {

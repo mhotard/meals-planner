@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { requireUser } from "@/lib/auth";
-import { getPlanByWeek, getPlanEntries, groupByDay } from "@/lib/plans";
-import { buildShoppingList, groupByCategory, partitionList } from "@/lib/shopping";
+import { requireUser } from "@/server/auth";
+import { getPlanByWeek, getPlanEntries } from "@/server/plans";
+import { groupByDay } from "@/lib/plans";
+import { buildShoppingList } from "@/server/shopping";
+import { groupByCategory, partitionList } from "@/lib/shopping";
 import { formatWeekRange, isValidWeekStart } from "@/lib/dates";
 import { planForTrello, shoppingAsText, shoppingForTrello } from "@/lib/export";
 import ShoppingList from "@/components/shopping-list";

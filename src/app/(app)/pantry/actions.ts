@@ -3,10 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { eq, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
-import { requireUser } from "@/lib/auth";
+import { requireUser } from "@/server/auth";
 import { toCategory } from "@/lib/categories";
 import { field, numericOrNull } from "@/lib/form";
-import { findIngredientByName } from "@/lib/ingredients";
+import { findIngredientByName } from "@/db/ingredients";
 import { toSupply, type Supply } from "@/lib/supply";
 import { normalizeUnit } from "@/lib/units";
 

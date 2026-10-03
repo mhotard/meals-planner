@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser } from "@/server/auth";
 import LoginForm from "./login-form";
 
 export default async function LoginPage({ searchParams }: PageProps<"/login">) {

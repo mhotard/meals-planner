@@ -30,14 +30,24 @@ week into a shopping list you can share or paste into Trello.
 ## Running it locally
 
 ```bash
-npm install
+npm ci                # Node 22+; optionally select it with nvm use
+cp .env.example .env.local
 npm run db:migrate     # creates the local database in .pglite/
-npm run user you@example.com "Your Name" your-password
+npm run user -- you@example.com "Your Name" your-password
 npm run seed           # optional: sample recipes and staples
 npm run dev
 ```
 
 Then open http://localhost:3000.
+
+For coding agents, start with [AGENTS.md](AGENTS.md). The
+[architecture map](docs/architecture.md) explains where to put code; the
+[development runbook](docs/development.md) covers checks, database changes, and
+disposable previews. Use [task notes](docs/tasks/README.md) for work spanning sessions.
+
+The [roadmap](docs/roadmap.md) lays out release milestones and optional feature
+work. The [coordination guide](docs/coordination.md) provides agent ownership,
+dispatch order, verification gates, and copyable handoff prompts.
 
 With no `DATABASE_URL` set, the app runs on **PGlite** — a real Postgres
 compiled to WebAssembly, stored in `.pglite/`. Nothing to install.
@@ -71,6 +81,8 @@ New household members can also be added from **Settings** once you're signed in.
 | --- | --- |
 | `npm run dev` | Dev server |
 | `npm run build` / `npm start` | Production build and serve |
+| `npm run check` | Lint, fresh route types, TypeScript, and isolated tests |
+| `npm run lint` / `npm run typecheck` / `npm test` | Run individual checks |
 | `npm run db:generate` | Generate a SQL migration after editing `src/db/schema.ts` |
 | `npm run db:migrate` | Apply migrations |
 | `npm run user <email> <name> <password>` | Create or reset a login |
@@ -84,12 +96,22 @@ src/
   app/login/        sign in
   app/share/[token] public read-only week
   components/       shared UI (form primitives, shopping list, copy buttons, nav)
-  db/               Drizzle schema and the driver switch, shared with scripts/
-  lib/              units, dates, categories, form parsing, shopping-list builder, exports
+  hooks/            browser-facing React hooks
+  db/               Drizzle schema, connections, ingredient helpers shared with scripts/
+  lib/              pure types, units, dates, grouping, form parsing, exports
+  server/           server-only sessions, queries, request helpers, shopping-list builder
   proxy.ts          route protection
-scripts/            migrate, seed, create user
+scripts/            environment loading, migrate, seed, create user
+tests/unit/         domain behavior tests
+tests/integration/  migrations and persistence on disposable databases
+docs/               architecture, development workflow, task notes
 drizzle/            generated SQL migrations
 ```
+
+Run `npm run check` before completing a code change, and `npm run build` for
+production compilation. The build needs network access to download the current
+Google Fonts. Automated database tests always use a temporary directory and
+never open your household's `.pglite/` database.
 
 ### Notes on a couple of decisions
 

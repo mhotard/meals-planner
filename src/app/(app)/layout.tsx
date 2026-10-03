@@ -1,4 +1,4 @@
-import { requireUser } from "@/lib/auth";
+import { requireUser } from "@/server/auth";
 import { logout } from "../login/actions";
 import NavLink from "@/components/nav-link";
 

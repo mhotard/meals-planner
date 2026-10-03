@@ -1,5 +1,5 @@
-import { requireUser } from "@/lib/auth";
-import { listIngredients } from "@/lib/recipes";
+import { requireUser } from "@/server/auth";
+import { listIngredients } from "@/server/recipes";
 import { categoryIcon, categoryRank } from "@/lib/categories";
 import { CategorySelect, SupplySelect, UnitSelect } from "@/components/form";
 import {

@@ -3,6 +3,7 @@
  *   npx tsx scripts/seed-user.ts <email> <name> <password>
  * Works against PGlite locally, or Postgres when DATABASE_URL is set.
  */
+import "./env";
 import bcrypt from "bcryptjs";
 import { sql } from "drizzle-orm";
 import { createConnection } from "../src/db/create";

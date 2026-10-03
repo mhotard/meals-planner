@@ -1,0 +1,67 @@
+# 06 — Deploy staging and rehearse operations
+
+Status: queued. Owner: unassigned (deployment/operations).
+Dependencies: accepted 05/G1. Branch/worktree and candidate commit: unassigned.
+
+## Goal and ownership
+
+Prove the candidate works on HTTPS and hosted Postgres with tested recovery.
+Own deployment configuration, proposed `docs/deployment.md`/`docs/operations.md`,
+deployment scripts, and hosted-driver fixtures. Coordinate any database driver,
+root configuration, or schema edits with their owners.
+
+## Plan
+
+1. Resolve account/project, region, budget, publication authorization, and fresh
+   start vs household-data migration. Check current provider plans and installed
+   Next.js support. Vercel/Neon is provisional, not an existing configured service.
+2. Separate staging and production databases/secrets; previews cannot use the
+   production database. Hosted deployments must fail on absent `DATABASE_URL`
+   or production `AUTH_SECRET`, rather than silently selecting local PGlite.
+3. Provision isolated hosted staging and explicitly apply migrations once with
+   one operator; do not migrate at app boot/build. Create synthetic accounts
+   securely; demo seed only staging. Deploy the candidate SHA and record HTTPS URL.
+4. Verify the actual Postgres driver: fresh/re-run migrations, case-insensitive
+   uniqueness, transaction success/rollback, concurrent login throttling, and
+   persistence across redeploy. If adding proposed `npm run test:postgres`, require
+   an explicitly disposable hosted test database and prohibit production targets.
+5. Run 04's flows on HTTPS with production cookie/session settings. Use a separate
+   staging configuration; never apply local destructive teardown to production.
+6. Implement the agreed backup policy from the roadmap. Restore staging into a
+   different empty database; compare table counts and representative ingredient,
+   recipe, plan, entry, override, and user relationships. Verify migration state
+   and login on the restored app; measure recovery time against the target.
+7. Rehearse application rollback separately from database recovery. Test schema
+   compatibility; do not assume app rollback undoes migrations or run destructive
+   down-migrations by default.
+8. Deliver deployment/operations runbooks: environment names, secure secret access,
+   migration order, rollback, restore, logs, limits, cost, and production-data plan.
+
+## Verification milestones
+
+| ID | Pass condition | Method / evidence |
+| --- | --- | --- |
+| 06.1 | HTTPS staging serves approved SHA with isolated data/secrets | URL/deployment ID/SHA; nonsecret scope inventory; missing-config failure check |
+| 06.2 | Hosted-driver behavior matches accepted local invariants | Postgres transaction/uniqueness tests, redeploy persistence, migration results |
+| 06.3 | Production cookie/auth and household flows work on HTTPS | Browser report with revocation and signed-out sharing; no skipped critical flows |
+| 06.4 | Backup restores into a separate DB within agreed target | Count/relationship comparisons, restored-app smoke, measured recovery duration |
+| 06.5 | Rollback has a known compatible schema path | Rehearsal and compatibility record; coordinator accepts G2 |
+
+## Provider references
+
+Environment changes require a new deployment and scope verification.
+[Vercel environment variables](https://vercel.com/docs/environment-variables).
+
+Use the current documented application rollback procedure and independently
+establish database recovery.
+[Vercel production rollback](https://vercel.com/docs/deployments/rollback-production-deployment).
+
+Neon's restore history depends on the selected plan. Check actual retention;
+do not infer the proposed backup target from free-tier availability.
+[Neon restore documentation](https://github.com/neondatabase/website/blob/main/content/docs/postgres/backup-restore/branch-restore.md).
+
+## Handoff and acceptance
+
+Results: not run. Return staging URL/SHA, resource identifiers, runbooks,
+budget/data decisions, driver/browser results, restore/rollback evidence, and
+blockers. Never include connection strings, passwords, or dumps. G2: pending.

@@ -1,6 +1,6 @@
 import { sql } from "drizzle-orm";
-import type { DB } from "@/db";
-import * as schema from "@/db/schema";
+import type { DB } from "./create";
+import * as schema from "./schema";
 
 /**
  * Ingredient names are unique case-insensitively (see the index in the

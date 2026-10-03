@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { getDb, schema } from "@/db";
-import { endSession, startSession } from "@/lib/auth";
+import { endSession, startSession } from "@/server/auth";
 import { field } from "@/lib/form";
 
 export type LoginState = { error?: string };

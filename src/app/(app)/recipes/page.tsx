@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { requireUser } from "@/lib/auth";
-import { listRecipes } from "@/lib/recipes";
+import { requireUser } from "@/server/auth";
+import { listRecipes } from "@/server/recipes";
 import { relativeDays } from "@/lib/dates";
 
 export default async function RecipesPage({ searchParams }: PageProps<"/recipes">) {
