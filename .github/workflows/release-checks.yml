@@ -33,7 +33,10 @@ jobs:
       - name: Install committed dependencies
         run: npm ci
       - name: Generate disposable signing secret
-        run: echo "AUTH_SECRET=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
+        run: |
+          test_signing_secret=$(openssl rand -hex 32)
+          echo "::add-mask::$test_signing_secret"
+          echo "AUTH_SECRET=$test_signing_secret" >> "$GITHUB_ENV"
       - name: Lint, route types, TypeScript and database tests
         run: npm run check
       - name: Production build (default compiler)
