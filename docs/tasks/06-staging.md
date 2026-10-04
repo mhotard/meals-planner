@@ -104,7 +104,12 @@ October3 G1 handoff: exactcandidate6eec71f passed Ubuntu24.04.5/Node22.23.3
 defaultTurbopack CI37161614515,31checks/configsmoke/prodaudit/14browser.
 Independent readiness review confirmed local fixtures intentionally select
 PGlite/development and cannot establish hosted or HTTPS production evidence.
-Separate operator procedure is being prepared in docs/staging-verification.md.
+Separate [operator procedure](../staging-verification.md) is prepared and reviewed
+by the coordinator; documentation-only worker /root/validation, October3.
+There is no committed hosted Postgres runner or production-action replay yet.
+Prepare and review those bounded probes before claiming hosted transaction,
+concurrency or production-action authorization results. Manual HTTPS household
+steps are specified separately; the existing dev fixtures must remain isolated.
 
 Blocked actions and genuinely missing inputs:
 
@@ -118,3 +123,6 @@ They were requested; no answer has been inferred from elapsed time. No hosted
 resources, credential changes, migrations or billing commitments were made.
 06.1–06.5 remain not run; G2 pending. Next action is isolated staging provisioning
 once the required inputs and secure account access are established.
+Documentation verification: `git diff --check` exited0; helper, CLI, schema,
+cookie and failure-trigger references checked against the installed candidate.
+No code changed and no hosted check was run for this documentation handoff.

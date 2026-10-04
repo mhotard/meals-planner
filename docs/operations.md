@@ -3,6 +3,8 @@
 Status: draft. Operator, hosted resources, recovery policy and evidence pending.
 Proposed targets: daily backups, at least seven retained daily recovery points,
 restore within one hour. Confirm budget/provider capability before adopting them.
+The [staging verification procedure](staging-verification.md) defines the
+separate-target restore, measured recovery time, and application rollback checks.
 
 ## Backup and restore rehearsal
 

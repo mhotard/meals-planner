@@ -2,6 +2,8 @@
 
 Status: draft. No provider resources or HTTPS URLs have been verified.
 Use [release evidence](release-evidence.md) for actual gate results.
+Use [staging verification](staging-verification.md) for the operator checklist;
+its unexecuted steps and missing hosted runners are explicit.
 
 ## Inputs and environment isolation
 

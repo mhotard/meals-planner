@@ -95,5 +95,6 @@ token permissions and browser sign-in; branch is published, no PR invented.
 06 claimed by coordinator and blocked only for dependent external actions.
 Next: obtain hosting inputs, provision isolated staging, execute hosted/HTTPS
 checks, restore and rollback rehearsal.07/G3 queued;08–11 remain proposed.
-Documentation-only worker grant: /root/validation owns NEW
-docs/staging-verification.md, no source/config/schema/provider access granted.
+Documentation-only grant released: /root/validation prepared
+docs/staging-verification.md; coordinator reviewed it. No source/config/schema/
+provider access was granted. Hosted and production-action runners remain pending.
