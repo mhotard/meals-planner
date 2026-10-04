@@ -1,9 +1,10 @@
 # 05 — Integrate CI and accept a release candidate
 
-Status: in_progress. Owner: /root (coordinator/integrator).
+Status: accepted. Owner: /root (coordinator/integrator).
 Dependencies: accepted01–04. Branch: codex/release-baseline; coordinator checkout.
 Local verified source/test/config: e6249da0c6bcecfb1edaf7efae4809f9abf0710f.
-Remote candidate SHA andCI evidence pending initialpush.
+Remote candidate: 6eec71f897e12a6a4ad23dd916c7b5c6afad7f5e.
+Positive and intentional-negative CI results verified; G1 accepted October 3, 2026.
 
 ## Goal and ownership
 
@@ -45,9 +46,12 @@ Feature fixes return to their owners.
 
 ## Handoff and acceptance
 
-Results: not run. Return candidate commit, CI/PR links, check enforcement,
-migration order, nonblocking defects, and deployment handoff. No hosting is
-claimed here. G1 acceptance: pending.
+Results: all required CI steps passed on the candidate; negative rehearsal failed
+on its intended assertion. Reviewable branch is published. Draft PR creation is
+blocked by GitHub access (API403; browser signed out). No hosting is claimed.
+G1 accepted for the exact remote candidate SHA above. Independent readiness
+review found no application blocker and confirmed that the packet permits an
+enforced coordinator process when GitHub branch protection is unavailable.
 
 ## Coordinator preparation — October 3, 2026
 
@@ -88,3 +92,53 @@ a clean full audit. Proposed forced fixes downgrade major Next/Drizzle tool
 versions; they were not applied. Existing development-only exposure assessment
 in docs/release-evidence.md remains unchanged. `npm audit --omit=dev` exited0,
 zero production vulnerabilities. No dependency files changed during this review.
+
+## Integrated remote verification — October 3, 2026
+
+Candidate `6eec71f897e12a6a4ad23dd916c7b5c6afad7f5e` on
+`codex/release-baseline` passed
+[CI37161614515](https://github.com/mhotard/meals-planner/actions/runs/37161614515).
+GitHub Actions Ubuntu24.04.5 x64, Node22.23.3/npm10.9.9/Next16.3.8:
+`npm ci`, `npm run check` (31/31), `npm run build` (default Turbopack, 6.4s
+compilation), `npm run test:production-config`, `npm audit --omit=dev` (zero),
+`npx playwright install --with-deps chromium`, and `npm run test:e2e`
+(14/14,9.4m,zero retries) all exited0. No production secrets or DB supplied.
+Browser tests exercise development Webpack; HTTPS production flows remain06.
+This resolves the CI default-compiler requirement, without rewriting the earlier
+unavailable local Turbopack result.
+
+Negative-only branch `codex/ci-negative-rehearsal` at
+`542c0e632f2fdd7a2e703c3ea809c2fe44b59cc6` ran
+[CI37161642511](https://github.com/mhotard/meals-planner/actions/runs/37161642511).
+`npm run check` exited1:31pass/1fail, exact error
+`INTENTIONAL_RELEASE_GATE_FAILURE`. Later dependent checks were skipped.
+The extra assertion file is not present in the candidate and must never be merged.
+
+Exact inspection commands, job results, environments and URLs are in
+[release-evidence.md](../release-evidence.md). Both run-view and log retrieval
+commands exited0. Both branch pushes exited0. GitHub branch protection access
+returned403; server enforcement was not installed. Coordinator process enforces
+an exact-SHA successful required job before merge/deploy, and reruns the gate
+when source/config/tests change. Failure cannot be substituted with an older pass.
+
+05.1 and05.2: passed by the positive/negative runs and enforced process.
+05.3: passed by integrated reviews and coherent migrations, with nine documented
+development-only advisories accepted as nonblocking (full audit not clean).
+05.4: concrete candidate SHA, build mode and configuration inventory prepared in
+[deployment.md](../deployment.md); passed after coordinator and independent
+readiness review. PR creation remains an access follow-up, not a claimed pass.
+
+Draft PR title/body are prepared at `/private/tmp/meals-release-pr-body.md`.
+GraphQL `gh pr create` and REST pulls POST both denied access; browser fallback
+requires sign-in. User input requested securely; never place a token in chat.
+No PR URL is invented. A created PR must be attached to this chat when available.
+
+Acceptance: /root accepted05/G1 on October3 for exact
+`6eec71f897e12a6a4ad23dd916c7b5c6afad7f5e`, after integrated source reviews,
+positive and intentional-negative CI evidence, migration review and independent
+readiness review by /root/validation. Deployment must use this frozen SHA.
+Later documentation commits do not replace its exact-SHA test evidence.
+Any changed deployment candidate needs its own successful required job.
+Next:06; provisioning blocked on missing provider/account/budget/region inputs.
+Local fixtures cannot be pointed at staging; use the separate operator procedure
+and record actual hosted/HTTPS results before acceptingG2.

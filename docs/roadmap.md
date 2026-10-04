@@ -25,7 +25,7 @@ URL, production database, backup policy, or deployment account has been verified
 | Gate | Deliverable | Evidence required to pass | Initial status |
 | --- | --- | --- | --- |
 | G0 | Reproducible, committed baseline | Fresh checkout installs, checks/builds; baseline commit and ownership recorded | Accepted: 868d226; fresh checkout verification in task 00 |
-| G1 | Reliable release candidate | Tasks 01–04 accepted; CI green on one integrated commit; no unresolved release-blocking defects | Pending |
+| G1 | Reliable release candidate | Tasks 01–04 accepted; CI green on one integrated commit; no unresolved release-blocking defects | Accepted: 6eec71f; positive/negative CI and review in task05 |
 | G2 | Working hosted staging app | HTTPS staging URL and commit recorded; hosted Postgres tested; isolated environments; backup restored successfully; rollback rehearsed | Pending |
 | G3 | Household production release | Production URL/commit recorded; release flow and data decision verified; monitoring/backups active; named operator accepts handoff | Pending |
 | G4 | Feedback-driven improvements | Selected optional packets accepted with their own checks; household feedback recorded | Proposed |
@@ -92,3 +92,9 @@ and a handoff section. Required checks must pass on the same candidate commit.
 An unavailable check leaves its release gate pending; it is not a pass.
 
 Execution update October 2, 2026: restructuring preserved in baseline 868d226. G0 accepted; 01/02/04 scaffold assigned with exclusive ownership. Remaining gate evidence pending.
+
+Execution update October3:00–05 accepted; exact release candidate
+6eec71f897e12a6a4ad23dd916c7b5c6afad7f5e passed Node22 CI, default Turbopack,
+31unit/integration and14browser tests. Intentional negative CI failed correctly.
+06 external execution awaits account/project, budget/region/operator/data/recovery
+inputs.07/G3 pending; optional08–11 proposed. No HTTPS/recovery claim is made.

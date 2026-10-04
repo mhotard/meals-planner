@@ -1,7 +1,8 @@
 # 06 — Deploy staging and rehearse operations
 
-Status: queued. Owner: unassigned (deployment/operations).
-Dependencies: accepted 05/G1. Branch/worktree and candidate commit: unassigned.
+Status: blocked (dependent external actions). Owner: /root (deployment/operations).
+Dependencies: accepted05/G1. Branch: codex/release-baseline; coordinator checkout.
+Frozen candidate: 6eec71f897e12a6a4ad23dd916c7b5c6afad7f5e.
 
 ## Goal and ownership
 
@@ -98,3 +99,22 @@ snapshots. Proposed environments and priced units are in docs/deployment.md;
 draft daily snapshot/isolated multi-step restore procedure in docs/operations.md.
 No account choice, monthly budget, operator, data decision, resource creation,
 paid upgrade, hosted driver check or HTTPS staging pass is claimed.
+
+October3 G1 handoff: exactcandidate6eec71f passed Ubuntu24.04.5/Node22.23.3
+defaultTurbopack CI37161614515,31checks/configsmoke/prodaudit/14browser.
+Independent readiness review confirmed local fixtures intentionally select
+PGlite/development and cannot establish hosted or HTTPS production evidence.
+Separate operator procedure is being prepared in docs/staging-verification.md.
+
+Blocked actions and genuinely missing inputs:
+
+- Provision staging: provider account/project owner, region, monthly cap and secure account access.
+- Configure paid backup/recovery rehearsal: approved provider plan, recovery targets and operator.
+- Prepare production data: fresh household versus explicit migration decision.
+- Publish production afterG2: intended account/project/publication scope and named operator.
+
+These are missing execution inputs, not new approval requirements for local work.
+They were requested; no answer has been inferred from elapsed time. No hosted
+resources, credential changes, migrations or billing commitments were made.
+06.1–06.5 remain not run; G2 pending. Next action is isolated staging provisioning
+once the required inputs and secure account access are established.

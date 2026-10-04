@@ -52,6 +52,17 @@ HTTP response, not merely an open port or the CLI Ready line. Run
 
 ## Candidate and migration
 
+Verified staging candidate: `6eec71f897e12a6a4ad23dd916c7b5c6afad7f5e`,
+branch `codex/release-baseline`,
+[successful Node22 CI](https://github.com/mhotard/meals-planner/actions/runs/37161614515).
+Use `npm ci` and `npm run build` (default Turbopack) as the verified build route.
+G1 acceptance is recorded by the coordinator in task05; G2 remains unverified.
+Required secret names: `DATABASE_URL` and `AUTH_SECRET` (at least32 UTF-8 bytes,
+generated randomly). Scope staging and production separately. `PGLITE_DIR` is
+not a hosted-production setting. Applied order is `0000_init`, then
+`0001_natural_matthew_murdock`; migrate once with the named operator.
+All existing sessions require a new login after the authentication release.
+
 Require G1 evidence matching the exact candidate SHA. Check installation, lint,
 fresh route types, TypeScript, unit/integration tests, production build and the
 browser suite. Staging HTTPS tests separately prove production-mode cookies.
